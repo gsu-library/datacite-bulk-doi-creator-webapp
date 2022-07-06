@@ -13,7 +13,20 @@
 </head>
 <body>
    <div class="container">
-      <h1>DataCite Bulk DOI Creator</h1>
+      <h1 class="my-4">DataCite Bulk DOI Creator</h1>
+
+      <div class="row">
+         <div class="col-lg">
+            <form action="." method="post">
+               <div class="form-group">
+                  <label for="fileUpload">Upload File</label>
+                  <input type="file" id="fileUpload" class="form-control-file">
+               </div>
+
+               <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+         </div>
+      </div>
    </div>
 </body>
 </html>
