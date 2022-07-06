@@ -15,3 +15,5 @@ For more information about DOIs please see DataCite's [support page](https://sup
 ## Usage
 
 ## Dependencies
+- Bootstrap v4.6.1
+- jQuery Slim v3.5.1
