@@ -11,9 +11,14 @@ A PHP WebApp that bulk creates DataCite DOIs from a provided CSV file. DOIs are 
 For more information about DOIs please see DataCite's [support page](https://support.datacite.org/) and/or resources from their [homepage](https://doi.datacite.org/). Information on their [metadata schemas](https://schema.datacite.org/) is also available.
 
 ## Installation
+- apache
+- php curl
 
 ## Usage
+
 
 ## Dependencies
 - Bootstrap v4.6.1
 - jQuery Slim v3.5.1
+- php curl
+- php 7.0
