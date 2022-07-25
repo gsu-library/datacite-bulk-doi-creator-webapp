@@ -13,7 +13,7 @@
 </head>
 <body>
    <div class="container">
-      <h1 class="my-4">DataCite Bulk DOI Creator</h1>
+      <h1 class="my-4">DataCite Bulk DOI Creator - REMOVE CURL SSL OPT</h1>
 
       <div class="row">
          <div class="col-lg-8">

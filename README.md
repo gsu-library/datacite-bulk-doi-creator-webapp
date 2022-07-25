@@ -14,6 +14,8 @@ For more information about DOIs please see DataCite's [support page](https://sup
 - apache
 - php curl
 
+php needs read/write access to reports and uploads folders
+
 ## Usage
 
 
