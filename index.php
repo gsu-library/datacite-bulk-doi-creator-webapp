@@ -1,5 +1,22 @@
 <?php
+   //TODO: should output be cleared each run?
    session_start();
+
+   // Print output session variable.
+   function printOutput() {
+      if(isset($_SESSION['output'])) {
+         foreach($_SESSION['output'] as $message) {
+            echo $message."\r\n";
+         }
+      }
+
+      $_SESSION['output'] = [];
+   }
+
+
+   if(!($_SESSION['csrfToken'] ?? null)) {
+      $_SESSION['csrfToken'] = bin2hex(random_bytes(32));
+   }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -26,23 +43,27 @@
          <div class="collapse navbar-collapse" id="navbarNavDropdown">
             <ul class="navbar-nav">
                <li class="nav-item active">
-                  <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-               </li>
-               <li class="nav-item active">
-                  <a class="nav-link" href="#">DataCite</a>
-               </li>
-               <li class="nav-item active">
-                  <a class="nav-link" href="#">Github Repository</a>
+                  <a class="nav-link" href="https://github.com/gsu-library/datacite-bulk-doi-creator-webapp/">Bulk DOI Creator Repository</a>
                </li>
                <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
-                  Help
-               </a>
-               <div class="dropdown-menu">
-                  <a class="dropdown-item" href="#">README</a>
-                  <a class="dropdown-item" href="#">DataCite Help</a>
-                  <a class="dropdown-item" href="#">etc...</a>
-               </div>
+                  <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+                     DataCite
+                  </a>
+                  <div class="dropdown-menu">
+                     <a class="dropdown-item" href="https://datacite.org/">Homepage</a>
+                     <a class="dropdown-item" href="https://doi.datacite.org/sign-in">Sign-In</a>
+                  </div>
+               </li>
+               <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+                     Help
+                  </a>
+                  <div class="dropdown-menu">
+                     <a class="dropdown-item" href="https://github.com/gsu-library/datacite-bulk-doi-creator-webapp/blob/master/README.md">README</a>
+                     <a class="dropdown-item" href="https://support.datacite.org/">DataCite Help</a>
+                     <a class="dropdown-item" href="https://github.com/gsu-library/datacite-bulk-doi-creator-webapp/issues">Report an Issue/Request Enhancement</a>
+                     <a class="dropdown-item" href="https://support.datacite.org/docs/api-error-codes">DataCite API Error/Status Codes</a>
+                  </div>
                </li>
             </ul>
          </div>
@@ -57,8 +78,12 @@
                   <input type="file" id="fileUpload" class="form-control-file" name="fileUpload" accept=".csv">
                </div>
 
+               <input type="hidden" name="csrfToken" value="<?= $_SESSION['csrfToken']; ?>">
                <button type="submit" class="btn btn-primary" name="submit">Submit</button>
             </form>
+
+            <label class="mt-5" for="output">Output</label>
+            <textarea class="form-control mb-5" id="output" rows="10" disabled><?php printOutput(); ?></textarea>
          </div>
 
          <div class="col-lg-5">
