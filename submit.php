@@ -1,4 +1,5 @@
 <?php
+   session_start();
    //TODO: csrf check
    //TODO: JSON output for errors?
    //TODO: Add CSV options to config
@@ -7,6 +8,7 @@
    function in_array_all($needles, $haystack) {
       return empty(array_diff($needles, $haystack));
    }
+
 
    // Load configuration file.
    if(!$config = parse_ini_file('config/config.ini')) {
@@ -35,8 +37,8 @@
       exit;
    }
 
-   // Open the file.
-   if(!$fp = fopen($fullFile, 'r')) {
+   // Open the uploaded file.
+   if(!$uploadFp = fopen($fullFile, 'r')) {
       echo 'There was an error opening the uploaded file.';
       exit;
    }
@@ -45,7 +47,7 @@
    $fileData = [];
 
    // Save file headers.
-   if(($headers = fgetcsv($fp)) === false) {
+   if(($headers = fgetcsv($uploadFp)) === false) {
       echo 'No data was found in the uploaded file.';
       exit;
    }
@@ -61,7 +63,7 @@
       'creator1_given',
       'creator1_family',
       'publisher',
-      'url',
+      'source',
       'context_key'
    ];
 
@@ -79,11 +81,11 @@
    }
 
    // Retrieve the rest of the file.
-   while(($row = fgetcsv($fp)) !== false) {
+   while(($row = fgetcsv($uploadFp)) !== false) {
       $fileData[] = array_combine($headers, $row);
    }
 
-   fclose($fp);
+   fclose($uploadFp);
 
    // Setup cURL.
    $ch = curl_init();
@@ -103,7 +105,17 @@
    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 
-   // Process file data.
+   // Open a file for the upload report.
+   if(!$reportFp = fopen('reports/upload-report.'.date('Ymd-His').'.csv', 'w')) {
+      echo 'Cannot write to the reports folder';
+      exit;
+   }
+
+   // Add headers to report file.
+   fputcsv($reportFp, ['id', 'doi', 'status', 'error']);
+
+   // id(context_key), doi link (https://doi.org/{doi}), status (response status code), error
+   // Process file data and create report.
    $proccessedCsv = [];
    foreach($fileData as $row) {
       $doi = $config['doiPrefix'].'/'.$row['context_key'];
@@ -143,7 +155,7 @@
                   'resourceType' => $row['type']
                ],
                'schemaVersion' => 'http://datacite.org/schema/kernel-4',
-               'url' => $row['url']
+               'url' => $row['source']
             ]
          ]
       ];
@@ -151,10 +163,9 @@
       // Submit data.
       $data = json_encode($submission, JSON_INVALID_UTF8_IGNORE);
       curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-      $result = curl_exec($ch);
-
-      // Print out message for each DOI.
-      // Save/write status to file for download report.
+      $result = json_decode(curl_exec($ch), true);
+      $error = $result['errors'][0]['title'] ?? '';
+      fputcsv($reportFp, [$row['context_key'], 'https://doi.org/'.$doi, curl_getinfo($ch, CURLINFO_HTTP_CODE), $error]);
       echo '<pre>'.print_r($result, true).'</pre>';
 
       if($error = curl_error($ch)) {
@@ -162,4 +173,5 @@
       }
    }
 
+   fclose($reportFp);
    curl_close($ch);
