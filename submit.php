@@ -1,8 +1,9 @@
 <?php
    session_start();
-   //TODO: csrf check
-   //TODO: JSON output for errors?
+   $_SESSION['output'] = [];
    //TODO: Add CSV options to config
+   //TODO: context_key should be called something different
+
 
    // Check if all needles exist in haystack.
    function in_array_all($needles, $haystack) {
@@ -10,14 +11,38 @@
    }
 
 
+   // Go back to the index page.
+   function goBack() {
+      header('location: .');
+      exit;
+   }
+
+
+   // Check CSRF token.
+   if(!isset($_POST['csrfToken']) || !isset($_SESSION['csrfToken'])) {
+      array_push($_SESSION['output'], 'CSRF token not found.');
+      goBack();
+   }
+   else {
+      if($_POST['csrfToken'] !== $_SESSION['csrfToken']) {
+         array_push($_SESSION['output'], 'The CSRF token is invalid.');
+         goBack();
+      }
+      else {
+         unset($_SESSION['csrfToken']);
+      }
+   }
+
    // Load configuration file.
    if(!$config = parse_ini_file('config/config.ini')) {
-      exit;
+      array_push($_SESSION['output'], 'Could not load the configuration file.');
+      goBack();
    }
 
    // Check for PHP cURL.
    if(!function_exists('curl_init')) {
-      echo 'Please install/enable the PHP cURL library.';
+      array_push($_SESSION['output'], 'Please install/enable the PHP cURL library.');
+      goBack();
    }
 
    //TODO: Set max file size in configuration and check it here and on the form.
@@ -33,14 +58,14 @@
       //TODO: Check max files and remove files if needed.
    }
    else {
-      echo 'There was an error saving the uploaded file.';
-      exit;
+      array_push($_SESSION['output'], 'There was an error saving the uploaded file.');
+      goBack();
    }
 
    // Open the uploaded file.
    if(!$uploadFp = fopen($fullFile, 'r')) {
-      echo 'There was an error opening the uploaded file.';
-      exit;
+      array_push($_SESSION['output'], 'There was an error opening the uploaded file.');
+      goBack();
    }
 
 
@@ -48,8 +73,8 @@
 
    // Save file headers.
    if(($headers = fgetcsv($uploadFp)) === false) {
-      echo 'No data was found in the uploaded file.';
-      exit;
+      array_push($_SESSION['output'], 'No data was found in the uploaded file.');
+      goBack();
    }
 
    // Make sure CSV file has all required headers.
@@ -68,8 +93,8 @@
    ];
 
    if(!in_array_all($requiredHeaders, $headers)) {
-      echo 'The uploaded CSV file is missing required headers.';
-      exit;
+      array_push($_SESSION['output'], 'The uploaded CSV file is missing required headers.');
+      goBack();
    }
 
    // Find how many creator headers are present.
@@ -107,14 +132,13 @@
 
    // Open a file for the upload report.
    if(!$reportFp = fopen('reports/upload-report.'.date('Ymd-His').'.csv', 'w')) {
-      echo 'Cannot write to the reports folder';
-      exit;
+      array_push($_SESSION['output'], 'Cannot write to the reports folder');
+      goBack();
    }
 
-   // Add headers to report file.
+   // Add headers to upload report file.
    fputcsv($reportFp, ['id', 'doi', 'status', 'error']);
 
-   // id(context_key), doi link (https://doi.org/{doi}), status (response status code), error
    // Process file data and create report.
    $proccessedCsv = [];
    foreach($fileData as $row) {
@@ -166,12 +190,13 @@
       $result = json_decode(curl_exec($ch), true);
       $error = $result['errors'][0]['title'] ?? '';
       fputcsv($reportFp, [$row['context_key'], 'https://doi.org/'.$doi, curl_getinfo($ch, CURLINFO_HTTP_CODE), $error]);
-      echo '<pre>'.print_r($result, true).'</pre>';
+      array_push($_SESSION['output'], 'submitted key '.$row['context_key'].' with status of '.curl_getinfo($ch, CURLINFO_HTTP_CODE).', '.$error);
 
       if($error = curl_error($ch)) {
-         echo '<pre>'.print_r($error, true).'</pre>';
+         array_push($_SESSION['output'], $error);
       }
    }
 
    fclose($reportFp);
    curl_close($ch);
+   goBack();
