@@ -1,5 +1,10 @@
 <?php
    //TODO: should output be cleared each run?
+   //TODO: update output language for key -> suffix
+   //TODO: datetime text for report and upload links?
+   //TODO: file list should word-break: break-all
+   //TODO: recent uploads, recent reports (limit to 5ish?), create all upload and report page
+   //TODO: change textarea to something else maybe use output
    session_start();
 
    // Print output session variable.
@@ -14,7 +19,7 @@
    }
 
 
-   if(!($_SESSION['csrfToken'] ?? null)) {
+   if(!isset($_SESSION['csrfToken'])) {
       $_SESSION['csrfToken'] = bin2hex(random_bytes(32));
    }
 ?>
@@ -33,9 +38,9 @@
 </head>
 <body>
    <div class="container">
-      <h1 class="my-4">DataCite Bulk DOI Creator - REMOVE CURL SSL OPT</h1>
+      <h1 class="my-4">DataCite Bulk DOI Creator</h1>
 
-      <nav class="navbar navbar-expand-lg navbar-light bg-light my-4">
+      <nav class="navbar rounded navbar-dark bg-dark navbar-expand-lg my-4">
          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
          </button>
@@ -71,7 +76,7 @@
 
       <div class="row">
          <div class="col-lg-7">
-            <h2>Something</h2>
+            <!-- <h2>Something</h2> -->
             <form action="submit.php" method="post" enctype="multipart/form-data">
                <div class="form-group">
                   <label for="fileUpload">Upload File</label>
@@ -87,7 +92,7 @@
          </div>
 
          <div class="col-lg-5">
-            <h2><span class="text-muted">Upload Reports</span></h2>
+            <h2><span class="text-muted">Reports</span></h2>
 
             <ul class="list-group mb-3">
                <?php
@@ -112,7 +117,7 @@
             </ul>
 
 
-            <h2><span class="text-muted">Submitted Files</span></h2>
+            <h2><span class="text-muted">Uploads</span></h2>
             <ul class="list-group mb-3">
               <?php
                   $files = glob('uploads/*.csv');
