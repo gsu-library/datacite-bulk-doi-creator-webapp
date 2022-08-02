@@ -3,11 +3,35 @@
    $_SESSION['output'] = [];
    //TODO: Add CSV options to config
    //TODO: context_key should be called something different
+   //TODO: change source to source_url
+   //TODO: check doi url in report for /
+   //TODO: change context_key doi_suffix
+   //TODO: move id to front of template and move publisher and source in front of creator
+   //TODO: send upload report to user
+   //TODO: upload reports -> reports - filename - datetime if needed
 
 
    // Check if all needles exist in haystack.
    function in_array_all($needles, $haystack) {
       return empty(array_diff($needles, $haystack));
+   }
+
+
+   // Removes oldest files from directory.
+   function remove_old_files($filePattern, $maxFileCount) {
+      $files = glob($filePattern);
+      $extraFiles = count($files) - $maxFileCount;
+
+      if($extraFiles > 0) {
+         // Sort by last modified ascending.
+         usort($files, function($x, $y) {
+            return filemtime($x) > filemtime($y);
+         });
+
+         for($i = 0; $i < $extraFiles; $i++) {
+            unlink($files[$i]);
+         }
+      }
    }
 
 
@@ -54,8 +78,7 @@
       }
 
       move_uploaded_file($_FILES['fileUpload']['tmp_name'], $fullFile);
-
-      //TODO: Check max files and remove files if needed.
+      remove_old_files('uploads/*.csv', $config['maxSubmittedFiles']);
    }
    else {
       array_push($_SESSION['output'], 'There was an error saving the uploaded file.');
@@ -198,5 +221,6 @@
    }
 
    fclose($reportFp);
+   remove_old_files('reports/*.csv', $config['maxReportFiles']);
    curl_close($ch);
    goBack();
