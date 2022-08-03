@@ -1,27 +1,26 @@
 <?php
-   //TODO: should output be cleared each run?
-   //TODO: update output language for key -> suffix
-   //TODO: datetime text for report and upload links?
-   //TODO: file list should word-break: break-all
-   //TODO: recent uploads, recent reports (limit to 5ish?), create all upload and report page
-   //TODO: change textarea to something else maybe use output
-   session_start();
+//TODO: update output language for key -> suffix
+//TODO: datetime text for report and upload links?
+//TODO: file list should word-break: break-all
+//TODO: change textarea to something else maybe use output
+session_start();
+require_once('includes/functions.php');
 
-   // Print output session variable.
-   function printOutput() {
-      if(isset($_SESSION['output'])) {
-         foreach($_SESSION['output'] as $message) {
-            echo $message."\r\n";
-         }
+// Print output session variable.
+function printOutput() {
+   if(isset($_SESSION['output'])) {
+      foreach($_SESSION['output'] as $message) {
+         echo $message."\r\n";
       }
-
-      $_SESSION['output'] = [];
    }
 
+   $_SESSION['output'] = [];
+}
 
-   if(!isset($_SESSION['csrfToken'])) {
-      $_SESSION['csrfToken'] = bin2hex(random_bytes(32));
-   }
+
+if(!isset($_SESSION['csrfToken'])) {
+   $_SESSION['csrfToken'] = bin2hex(random_bytes(32));
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -40,43 +39,10 @@
    <div class="container">
       <h1 class="my-4">DataCite Bulk DOI Creator</h1>
 
-      <nav class="navbar rounded navbar-dark bg-dark navbar-expand-lg my-4">
-         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-         </button>
-
-         <div class="collapse navbar-collapse" id="navbarNavDropdown">
-            <ul class="navbar-nav">
-               <li class="nav-item active">
-                  <a class="nav-link" href="https://github.com/gsu-library/datacite-bulk-doi-creator-webapp/">Bulk DOI Creator Repository</a>
-               </li>
-               <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
-                     DataCite
-                  </a>
-                  <div class="dropdown-menu">
-                     <a class="dropdown-item" href="https://datacite.org/">Homepage</a>
-                     <a class="dropdown-item" href="https://doi.datacite.org/sign-in">Sign-In</a>
-                  </div>
-               </li>
-               <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
-                     Help
-                  </a>
-                  <div class="dropdown-menu">
-                     <a class="dropdown-item" href="https://github.com/gsu-library/datacite-bulk-doi-creator-webapp/blob/master/README.md">README</a>
-                     <a class="dropdown-item" href="https://support.datacite.org/">DataCite Help</a>
-                     <a class="dropdown-item" href="https://github.com/gsu-library/datacite-bulk-doi-creator-webapp/issues">Report an Issue/Request Enhancement</a>
-                     <a class="dropdown-item" href="https://support.datacite.org/docs/api-error-codes">DataCite API Error/Status Codes</a>
-                  </div>
-               </li>
-            </ul>
-         </div>
-      </nav>
+      <?php printNav(basename(__FILE__)); ?>
 
       <div class="row">
          <div class="col-lg-7">
-            <!-- <h2>Something</h2> -->
             <form action="submit.php" method="post" enctype="multipart/form-data">
                <div class="form-group">
                   <label for="fileUpload">Upload File</label>
@@ -92,52 +58,16 @@
          </div>
 
          <div class="col-lg-5">
-            <h2><span class="text-muted">Reports</span></h2>
+            <h2><span class="text-muted">Recent Reports</span></h2>
 
             <ul class="list-group mb-3">
-               <?php
-                  $files = glob('reports/*.csv');
-
-                  // Sort by last modified descending.
-                  usort($files, function($x, $y) {
-                     return filemtime($x) < filemtime($y);
-                  });
-
-                  if(empty($files)) {
-                     echo '<li class="list-group-item d-flex justify-content-between lh-condensed">no reports found</li>';
-                  }
-
-                  //TODO: sanitize filename
-                  foreach($files as $file) {
-                     echo '<li class="list-group-item d-flex justify-content-between lh-condensed">';
-                     echo '<a class="stretched-link" href="'.$file.'">'.substr($file, 8).'</a>';
-                     echo '</li>';
-                  }
-               ?>
+               <?php listFiles('reports', 5); ?>
             </ul>
 
 
-            <h2><span class="text-muted">Uploads</span></h2>
+            <h2><span class="text-muted">Recent Uploads</span></h2>
             <ul class="list-group mb-3">
-              <?php
-                  $files = glob('uploads/*.csv');
-
-                  // Sort by last modified descending.
-                  usort($files, function($x, $y) {
-                     return filemtime($x) < filemtime($y);
-                  });
-
-                  if(empty($files)) {
-                     echo '<li class="list-group-item d-flex justify-content-between lh-condensed">no uploads found</li>';
-                  }
-
-                  //TODO: sanitize filename
-                  foreach($files as $file) {
-                     echo '<li class="list-group-item d-flex justify-content-between lh-condensed">';
-                     echo '<a class="stretched-link" href="'.$file.'">'.substr($file, 8).'</a>';
-                     echo '</li>';
-                  }
-               ?>
+               <?php listFiles('uploads', 5); ?>
             </ul>
          </div>
       </div>
