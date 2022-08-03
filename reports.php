@@ -18,6 +18,7 @@ if(!$config = parse_ini_file('config/config.ini')) {
    <title>DataCite Bulk DOI Creator - Reports</title>
 
    <link rel="stylesheet" href="css/bootstrap.min.css">
+   <link rel="stylesheet" href="css/styles.css">
 
    <script src="js/jquery.slim.min.js"></script>
    <script src="js/bootstrap.bundle.min.js"></script>

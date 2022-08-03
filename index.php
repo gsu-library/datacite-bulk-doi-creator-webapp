@@ -31,6 +31,7 @@ if(!isset($_SESSION['csrfToken'])) {
    <title>DataCite Bulk DOI Creator</title>
 
    <link rel="stylesheet" href="css/bootstrap.min.css">
+   <link rel="stylesheet" href="css/styles.css">
 
    <script src="js/jquery.slim.min.js"></script>
    <script src="js/bootstrap.bundle.min.js"></script>
