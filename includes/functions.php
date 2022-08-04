@@ -39,6 +39,9 @@ function printNav($currentPage) {
          <li class="nav-item'. ($currentPage === 'reports.php' ? ' active' : '').'">
             <a class="nav-link" href="reports.php">Reports and Uploads</a>
          </li>
+         <li class="nav-item">
+            <a class="nav-link" href="template.csv">Download CSV Template</a>
+         </li>
       </ul>
 
       <ul class="navbar-nav ml-auto">
