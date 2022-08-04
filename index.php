@@ -1,7 +1,4 @@
 <?php
-//TODO: update output language for key -> suffix
-//TODO: datetime text for report and upload links?
-//TODO: change textarea to something else maybe use output
 session_start();
 require_once('includes/functions.php');
 
