@@ -145,10 +145,6 @@ curl_setopt_array($ch, [
    ]
 ]);
 
-//TODO THESE MUST BE REMOVED
-curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-
 // Open a file for the upload report.
 if(!$reportFp = fopen('reports/upload-report.'.date('Ymd-His').'.csv', 'w')) {
    array_push($_SESSION['output'], 'Cannot write to the reports folder');
