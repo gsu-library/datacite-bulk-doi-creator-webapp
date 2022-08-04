@@ -2,11 +2,7 @@
 session_start();
 $_SESSION['output'] = [];
 //TODO: Add CSV options to config
-//TODO: context_key should be called something different
-//TODO: change source to source_url
 //TODO: check doi url in report for /
-//TODO: change context_key doi_suffix
-//TODO: move id to front of template and move publisher and source in front of creator
 //TODO: send upload report to user
 //TODO: upload reports -> reports - filename - datetime if needed
 
@@ -160,12 +156,12 @@ if(!$reportFp = fopen('reports/upload-report.'.date('Ymd-His').'.csv', 'w')) {
 }
 
 // Add headers to upload report file.
-fputcsv($reportFp, ['id', 'doi', 'status', 'error']);
+fputcsv($reportFp, ['doi_suffix', 'doi_url', 'status', 'error']);
 
 // Process file data and create report.
 $proccessedCsv = [];
 foreach($fileData as $row) {
-   $doi = $config['doiPrefix'].'/'.$row['context_key'];
+   $doi = $config['doiPrefix'].'/'.$row['doi_suffix'];
    $creators = [];
 
    // Process multiple creators.
@@ -202,7 +198,7 @@ foreach($fileData as $row) {
                'resourceType' => $row['type']
             ],
             'schemaVersion' => 'http://datacite.org/schema/kernel-4',
-            'url' => $row['source']
+            'url' => $row['source_url']
          ]
       ]
    ];
@@ -212,8 +208,8 @@ foreach($fileData as $row) {
    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
    $result = json_decode(curl_exec($ch), true);
    $error = $result['errors'][0]['title'] ?? '';
-   fputcsv($reportFp, [$row['context_key'], 'https://doi.org/'.$doi, curl_getinfo($ch, CURLINFO_HTTP_CODE), $error]);
-   array_push($_SESSION['output'], 'submitted key '.$row['context_key'].' with status of '.curl_getinfo($ch, CURLINFO_HTTP_CODE).', '.$error);
+   fputcsv($reportFp, [$row['doi_suffix'], 'https://doi.org/'.$doi, curl_getinfo($ch, CURLINFO_HTTP_CODE), $error]);
+   array_push($_SESSION['output'], 'submitted doi suffix '.$row['doi_suffix'].', with status of '.curl_getinfo($ch, CURLINFO_HTTP_CODE).', '.$error);
 
    if($error = curl_error($ch)) {
       array_push($_SESSION['output'], $error);
