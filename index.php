@@ -1,7 +1,6 @@
 <?php
 //TODO: update output language for key -> suffix
 //TODO: datetime text for report and upload links?
-//TODO: file list should word-break: break-all
 //TODO: change textarea to something else maybe use output
 session_start();
 require_once('includes/functions.php');
@@ -10,7 +9,7 @@ require_once('includes/functions.php');
 function printOutput() {
    if(isset($_SESSION['output'])) {
       foreach($_SESSION['output'] as $message) {
-         echo $message."\r\n";
+         echo $message."<br>";
       }
    }
 
@@ -55,7 +54,7 @@ if(!isset($_SESSION['csrfToken'])) {
             </form>
 
             <label class="mt-5" for="output">Output</label>
-            <textarea class="form-control mb-5" id="output" rows="10" disabled><?php printOutput(); ?></textarea>
+            <output class="output mb-5" id="output"><?php printOutput(); ?></output>
          </div>
 
          <div class="col-lg-5">
