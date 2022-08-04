@@ -1,10 +1,11 @@
 <?php
 session_start();
 $_SESSION['output'] = [];
+const DEBUG = false;
 //TODO: Add CSV options to config
 //TODO: check doi url in report for /
 //TODO: send upload report to user
-//TODO: upload reports -> reports - filename - datetime if needed
+//TODO: add file name incrementer, use file_exists
 
 
 // Check if all needles exist in haystack.
@@ -39,17 +40,19 @@ function goBack() {
 
 
 // Check CSRF token.
-if(!isset($_POST['csrfToken']) || !isset($_SESSION['csrfToken'])) {
-   array_push($_SESSION['output'], 'CSRF token not found.');
-   goBack();
-}
-else {
-   if($_POST['csrfToken'] !== $_SESSION['csrfToken']) {
-      array_push($_SESSION['output'], 'The CSRF token is invalid.');
+if(!DEBUG) {
+   if(!isset($_POST['csrfToken']) || !isset($_SESSION['csrfToken'])) {
+      array_push($_SESSION['output'], 'CSRF token not found.');
       goBack();
    }
    else {
-      unset($_SESSION['csrfToken']);
+      if($_POST['csrfToken'] !== $_SESSION['csrfToken']) {
+         array_push($_SESSION['output'], 'The CSRF token is invalid.');
+         goBack();
+      }
+      else {
+         unset($_SESSION['csrfToken']);
+      }
    }
 }
 
@@ -66,14 +69,14 @@ if(!function_exists('curl_init')) {
 }
 
 //TODO: Set max file size in configuration and check it here and on the form.
-if($file = $_FILES['fileUpload']['name'] ?? null) {
-   $fullFile = 'uploads/'.$file;
+if($uploadFileName = $_FILES['fileUpload']['name'] ?? null) {
+   $uploadFullFilePath = 'uploads/'.$uploadFileName;
 
-   if(file_exists($fullFile)) {
-      $fullFile = 'uploads/'.pathinfo($file, PATHINFO_FILENAME).'.'.date('Ymd-His').'.'.pathinfo($file, PATHINFO_EXTENSION);
+   if(file_exists($uploadFullFilePath)) {
+      $uploadFullFilePath = 'uploads/'.pathinfo($uploadFileName, PATHINFO_FILENAME).'.'.date('Ymd-His').'.'.pathinfo($uploadFileName, PATHINFO_EXTENSION);
    }
 
-   move_uploaded_file($_FILES['fileUpload']['tmp_name'], $fullFile);
+   move_uploaded_file($_FILES['fileUpload']['tmp_name'], $uploadFullFilePath);
    remove_old_files('uploads/*.csv', $config['maxSubmittedFiles']);
 }
 else {
@@ -82,13 +85,11 @@ else {
 }
 
 // Open the uploaded file.
-if(!$uploadFp = fopen($fullFile, 'r')) {
+if(!$uploadFp = fopen($uploadFullFilePath, 'r')) {
    array_push($_SESSION['output'], 'There was an error opening the uploaded file.');
    goBack();
 }
 
-
-$fileData = [];
 
 // Save file headers.
 if(($headers = fgetcsv($uploadFp)) === false) {
@@ -96,6 +97,7 @@ if(($headers = fgetcsv($uploadFp)) === false) {
    goBack();
 }
 
+//TODO: move to configuration file?
 // Make sure CSV file has all required headers.
 $requiredHeaders = [
    'doi_suffix',
@@ -124,6 +126,8 @@ while(in_array('creator'.$i, $headers)) {
    array_push($creatorHeaders, 'creator'.$i++);
 }
 
+$fileData = [];
+
 // Retrieve the rest of the file.
 while(($row = fgetcsv($uploadFp)) !== false) {
    $fileData[] = array_combine($headers, $row);
@@ -146,9 +150,11 @@ curl_setopt_array($ch, [
 ]);
 
 // Open a file for the upload report.
-if(!$reportFp = fopen('reports/upload-report.'.date('Ymd-His').'.csv', 'w')) {
-   array_push($_SESSION['output'], 'Cannot write to the reports folder');
-   goBack();
+if(!$reportFp = fopen('reports/report-'.basename($uploadFullFilePath), 'w')) {
+   if(!$reportFp = fopen('reports/report-'.rtrim($uploadFileName, '.csv').'.'.date('Ymd-His').'.csv', 'w')) {
+      array_push($_SESSION['output'], 'Cannot write to the reports folder.');
+      goBack();
+   }
 }
 
 // Add headers to upload report file.
@@ -215,4 +221,6 @@ foreach($fileData as $row) {
 fclose($reportFp);
 remove_old_files('reports/*.csv', $config['maxReportFiles']);
 curl_close($ch);
-goBack();
+if(!DEBUG) {
+   goBack();
+}
