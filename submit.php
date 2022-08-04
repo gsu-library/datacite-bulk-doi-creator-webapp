@@ -102,17 +102,17 @@ if(($headers = fgetcsv($uploadFp)) === false) {
 
 // Make sure CSV file has all required headers.
 $requiredHeaders = [
+   'doi_suffix',
    'title',
    'year',
    'type',
    'description',
+   'publisher',
+   'source_url',
    'creator1',
    'creator1_type',
    'creator1_given',
    'creator1_family',
-   'publisher',
-   'source',
-   'context_key'
 ];
 
 if(!in_array_all($requiredHeaders, $headers)) {
