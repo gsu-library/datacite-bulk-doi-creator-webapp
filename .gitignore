@@ -1,4 +1,6 @@
-config.ini
+node_modules/
 reports/
 uploads/
-node_modules/
+.htaccess
+.htpasswd
+config.ini
