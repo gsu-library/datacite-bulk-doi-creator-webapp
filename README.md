@@ -16,6 +16,9 @@ For more information about DOIs please see DataCite's [support page](https://sup
 
 php needs read/write access to reports and uploads folders
 
+rename config/config.sample.ini
+rename .htaccess.sample
+
 ## Usage
 
 
