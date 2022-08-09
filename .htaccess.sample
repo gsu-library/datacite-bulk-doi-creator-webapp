@@ -1,0 +1,4 @@
+AuthType Basic
+AuthName "DataCite WebApp"
+AuthUserFile /var/www/html/
+Require valid-user
