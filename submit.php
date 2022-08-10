@@ -5,7 +5,6 @@ const DEBUG = false;
 //TODO: Add CSV options to config
 //TODO: check doi url in report for /
 //TODO: send upload report to user
-//TODO: add file name incrementer, use file_exists
 
 
 // Check if all needles exist in haystack.
@@ -36,6 +35,26 @@ function remove_old_files($filePattern, $maxFileCount) {
 function goBack() {
    header('location: .');
    exit;
+}
+
+
+// Returns a valid file name.
+function findFileName($fileName, $maxCount) {
+   if(!file_exists($fileName)) {
+      return $fileName;
+   }
+
+   $fileParts = pathinfo($fileName);
+
+   for($i = 1; $i < $maxCount; $i++) {
+      $tempName = $fileParts['dirname'] . DIRECTORY_SEPARATOR . $fileParts['filename'] . " ($i)." . $fileParts['extension'];
+
+      if(!file_exists($tempName)) {
+         return $tempName;
+      }
+   }
+
+   return null;
 }
 
 
@@ -70,10 +89,9 @@ if(!function_exists('curl_init')) {
 
 //TODO: Set max file size in configuration and check it here and on the form.
 if($uploadFileName = $_FILES['fileUpload']['name'] ?? null) {
-   $uploadFullFilePath = 'uploads/'.$uploadFileName;
-
-   if(file_exists($uploadFullFilePath)) {
-      $uploadFullFilePath = 'uploads/'.pathinfo($uploadFileName, PATHINFO_FILENAME).'.'.date('Ymd-His').'.'.pathinfo($uploadFileName, PATHINFO_EXTENSION);
+   if(!($uploadFullFilePath = findFileName('uploads/'.$uploadFileName, $config['maxSubmittedFiles']))) {
+      array_push($_SESSION['output'], 'There was an error saving the uploaded file.');
+      goBack();
    }
 
    move_uploaded_file($_FILES['fileUpload']['tmp_name'], $uploadFullFilePath);
@@ -97,7 +115,6 @@ if(($headers = fgetcsv($uploadFp)) === false) {
    goBack();
 }
 
-//TODO: move to configuration file?
 // Make sure CSV file has all required headers.
 $requiredHeaders = [
    'doi_suffix',
@@ -150,11 +167,14 @@ curl_setopt_array($ch, [
 ]);
 
 // Open a file for the upload report.
-if(!$reportFp = fopen('reports/report-'.basename($uploadFullFilePath), 'w')) {
-   if(!$reportFp = fopen('reports/report-'.rtrim($uploadFileName, '.csv').'.'.date('Ymd-His').'.csv', 'w')) {
-      array_push($_SESSION['output'], 'Cannot write to the reports folder.');
-      goBack();
-   }
+if(!($reportFullFilePath = findFileName('reports/report-'.basename($uploadFullFilePath), $config['maxReportFiles']))) {
+   array_push($_SESSION['output'], 'There was an error saving the report file.');
+   goBack();
+}
+
+if(!$reportFp = fopen($reportFullFilePath, 'w')) {
+   array_push($_SESSION['output'], 'Cannot write to the reports folder.');
+   goBack();
 }
 
 // Add headers to upload report file.
