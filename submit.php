@@ -4,7 +4,6 @@ $_SESSION['output'] = [];
 const DEBUG = false;
 //TODO: Add CSV options to config
 //TODO: make sure to trim and lowercase headers in upload file
-//TODO: check files joins for slash usage
 //TODO: send report path to index and create a link to latest report.
 
 
@@ -77,7 +76,7 @@ if(!DEBUG) {
 }
 
 // Load configuration file.
-if(!$config = parse_ini_file('config/config.ini')) {
+if(!$config = parse_ini_file('config'.DIRECTORY_SEPARATOR.'config.ini')) {
    array_push($_SESSION['output'], 'Could not load the configuration file.');
    go_back();
 }
@@ -90,13 +89,13 @@ if(!function_exists('curl_init')) {
 
 //TODO: Set max file size in configuration and check it here and on the form.
 if($uploadFileName = $_FILES['fileUpload']['name'] ?? null) {
-   if(!($uploadFullFilePath = find_file_name('uploads/'.$uploadFileName, $config['maxSubmittedFiles']))) {
+   if(!($uploadFullFilePath = find_file_name('uploads'.DIRECTORY_SEPARATOR.$uploadFileName, $config['maxSubmittedFiles']))) {
       array_push($_SESSION['output'], 'There was an error saving the uploaded file.');
       go_back();
    }
 
    move_uploaded_file($_FILES['fileUpload']['tmp_name'], $uploadFullFilePath);
-   remove_old_files('uploads/*.csv', $config['maxSubmittedFiles']);
+   remove_old_files('uploads'.DIRECTORY_SEPARATOR.'*.csv', $config['maxSubmittedFiles']);
 }
 else {
    array_push($_SESSION['output'], 'There was an error saving the uploaded file.');
@@ -168,7 +167,7 @@ curl_setopt_array($ch, [
 ]);
 
 // Open a file for the upload report.
-if(!($reportFullFilePath = find_file_name('reports/report-'.basename($uploadFullFilePath), $config['maxReportFiles']))) {
+if(!($reportFullFilePath = find_file_name('reports'.DIRECTORY_SEPARATOR.'report-'.basename($uploadFullFilePath), $config['maxReportFiles']))) {
    array_push($_SESSION['output'], 'There was an error saving the report file.');
    go_back();
 }
@@ -245,7 +244,7 @@ foreach($fileData as $row) {
 }
 
 fclose($reportFp);
-remove_old_files('reports/*.csv', $config['maxReportFiles']);
+remove_old_files('reports'.DIRECTORY_SEPARATOR.'*.csv', $config['maxReportFiles']);
 curl_close($ch);
 
 if(!DEBUG) {
