@@ -2,7 +2,6 @@
 session_start();
 $_SESSION['output'] = [];
 const DEBUG = false;
-//TODO: Add CSV options to config
 //TODO: make sure to trim and lowercase headers in upload file
 
 
@@ -86,12 +85,19 @@ if(!function_exists('curl_init')) {
    go_back();
 }
 
-//TODO: Set max file size in configuration and check it here and on the form.
+// Check upload and move it to folder.
 if($uploadFileName = $_FILES['fileUpload']['name'] ?? null) {
+   if($_FILES['fileUpload']['size'] > $config['maxUploadSize']){
+      array_push($_SESSION['output'], 'The uploaded file is too large.');
+      go_back();
+   }
+
    if(!($uploadFullFilePath = find_file_name('uploads'.DIRECTORY_SEPARATOR.$uploadFileName, $config['maxSubmittedFiles']))) {
       array_push($_SESSION['output'], 'There was an error saving the uploaded file.');
       go_back();
    }
+
+   echo '<pre>'.print_r($_FILES['fileUpload'], true).'</pre>';
 
    move_uploaded_file($_FILES['fileUpload']['tmp_name'], $uploadFullFilePath);
    remove_old_files('uploads'.DIRECTORY_SEPARATOR.'*.csv', $config['maxSubmittedFiles']);
