@@ -1,7 +1,7 @@
 <?php
 // Lists out files in either the reports or uploads directories.
 function listFiles($type, $amount) {
-   $files = glob($type.'/*.csv');
+   $files = glob($type.DIRECTORY_SEPARATOR.'*.csv');
 
    // Sort by last modified descending.
    usort($files, function($x, $y) {

@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once('includes/functions.php');
+require_once('includes'.DIRECTORY_SEPARATOR.'functions.php');
 
 // Print output session variable.
 function printOutput() {
