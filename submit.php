@@ -4,7 +4,6 @@ $_SESSION['output'] = [];
 const DEBUG = false;
 //TODO: Add CSV options to config
 //TODO: make sure to trim and lowercase headers in upload file
-//TODO: send report path to index and create a link to latest report.
 
 
 // Check if all needles exist in haystack.
@@ -176,6 +175,9 @@ if(!$reportFp = fopen($reportFullFilePath, 'w')) {
    array_push($_SESSION['output'], 'Cannot write to the reports folder.');
    go_back();
 }
+
+// Save report path to add link on index page.
+$_SESSION['reportPath'] = $reportFullFilePath;
 
 // Add headers to upload report file.
 fputcsv($reportFp, ['doi_suffix', 'doi_url', 'status', 'error']);

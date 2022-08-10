@@ -14,6 +14,16 @@ function printOutput() {
 }
 
 
+// Prints link to current report.
+function printReportLink() {
+   if(isset($_SESSION['reportPath']) && $_SESSION['reportPath']) {
+      echo '<a href="'.htmlspecialchars($_SESSION['reportPath'], ENT_QUOTES).'">Download Report</a>';
+   }
+
+   unset($_SESSION['reportPath']);
+}
+
+
 if(!isset($_SESSION['csrfToken'])) {
    $_SESSION['csrfToken'] = bin2hex(random_bytes(32));
 }
@@ -52,6 +62,10 @@ if(!isset($_SESSION['csrfToken'])) {
 
             <label class="mt-5" for="output">Output</label>
             <output class="output mb-5" id="output"><?php printOutput(); ?></output>
+
+            <div class="report my-3">
+               <?php printReportLink(); ?>
+            </div>
          </div>
 
          <div class="col-lg-5">
