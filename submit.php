@@ -2,7 +2,6 @@
 session_start();
 $_SESSION['output'] = [];
 const DEBUG = false;
-//TODO: make sure to trim and lowercase headers in upload file
 
 
 // Check if all needles exist in haystack.
@@ -29,13 +28,6 @@ function remove_old_files($filePattern, $maxFileCount) {
 }
 
 
-// Go back to the index page.
-function go_back() {
-   header('location: .');
-   exit;
-}
-
-
 // Returns a valid file name.
 function find_file_name($fileName, $maxCount) {
    if(!file_exists($fileName)) {
@@ -53,6 +45,13 @@ function find_file_name($fileName, $maxCount) {
    }
 
    return null;
+}
+
+
+// Go back to the index page.
+function go_back() {
+   header('location: .');
+   exit;
 }
 
 
@@ -119,6 +118,11 @@ if(($headers = fgetcsv($uploadFp)) === false) {
    array_push($_SESSION['output'], 'No data was found in the uploaded file.');
    go_back();
 }
+
+// Trim and lowercase headers in CSV file.
+$headers = array_map(function($header){
+   return strtolower(trim($header));
+}, $headers);
 
 // Make sure CSV file has all required headers.
 $requiredHeaders = [
