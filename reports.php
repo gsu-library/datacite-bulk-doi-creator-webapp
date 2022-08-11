@@ -1,13 +1,7 @@
 <?php
-require_once('includes/functions.php');
-
-//TODO: add config load to functions along with goback and think about session messages.
-// Load configuration file.
-if(!$config = parse_ini_file('config/config.ini')) {
-   // array_push($_SESSION['output'], 'Could not load the configuration file.');
-   // goBack();
-   header('location: .');
-}
+session_start();
+require_once('includes'.DIRECTORY_SEPARATOR.'functions.php');
+$config = load_config_file();
 ?>
 <!DOCTYPE html>
 <html lang="en">

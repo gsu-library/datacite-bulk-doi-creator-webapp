@@ -1,5 +1,9 @@
 <?php
 session_start();
+require_once('includes'.DIRECTORY_SEPARATOR.'functions.php');
+$config = load_config_file();
+
+
 $_SESSION['output'] = [];
 const DEBUG = false;
 
@@ -48,13 +52,6 @@ function find_file_name($fileName, $maxCount) {
 }
 
 
-// Go back to the index page.
-function go_back() {
-   header('location: .');
-   exit;
-}
-
-
 // Check CSRF token.
 if(!DEBUG) {
    if(!isset($_POST['csrfToken']) || !isset($_SESSION['csrfToken'])) {
@@ -70,12 +67,6 @@ if(!DEBUG) {
          unset($_SESSION['csrfToken']);
       }
    }
-}
-
-// Load configuration file.
-if(!$config = parse_ini_file('config'.DIRECTORY_SEPARATOR.'config.ini')) {
-   array_push($_SESSION['output'], 'Could not load the configuration file.');
-   go_back();
 }
 
 // Check for PHP cURL.
