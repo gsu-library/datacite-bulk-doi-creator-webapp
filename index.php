@@ -5,9 +5,7 @@ require_once('includes'.DIRECTORY_SEPARATOR.'functions.php');
 // Print output session variable.
 function printOutput() {
    if(isset($_SESSION['output'])) {
-      foreach($_SESSION['output'] as $message) {
-         echo $message."<br>";
-      }
+      echo implode('<br>', $_SESSION['output']);
    }
 
    $_SESSION['output'] = [];
