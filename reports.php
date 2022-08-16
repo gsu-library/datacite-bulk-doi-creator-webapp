@@ -27,7 +27,7 @@ $config = load_config_file();
    <main class="container">
       <div class="row">
          <div class="col-lg-6">
-            <h2><span class="text-muted">Reports</span></h2>
+            <h2><span>Reports</span></h2>
 
             <ul class="list-group mb-3">
                <?php list_files('reports', $config['maxReportFiles']); ?>
@@ -35,7 +35,7 @@ $config = load_config_file();
          </div>
 
          <div class="col-lg-6">
-            <h2><span class="text-muted">Uploads</span></h2>
+            <h2><span>Uploads</span></h2>
 
             <ul class="list-group mb-3">
                <?php list_files('uploads', $config['maxSubmittedFiles']); ?>

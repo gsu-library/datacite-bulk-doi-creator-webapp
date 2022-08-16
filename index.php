@@ -49,9 +49,9 @@ if(!isset($_SESSION['csrfToken'])) {
    </header>
 
    <main class="container">
-      <div class="row">
+      <div class="row mt-3">
          <div class="col-lg-7">
-            <form class="mt-4" action="submit.php" method="post" enctype="multipart/form-data">
+            <form action="submit.php" method="post" enctype="multipart/form-data">
                <div class="form-group">
                   <label for="fileUpload">Upload File</label>
                   <input type="file" id="fileUpload" class="form-control-file" name="fileUpload" accept=".csv">
@@ -70,14 +70,24 @@ if(!isset($_SESSION['csrfToken'])) {
          </div>
 
          <div class="col-lg-5">
-            <h2><span class="text-muted">Recent Reports</span></h2>
+            <h2><span>Configuration</span></h2>
+            <ul class="list-group mb-3">
+               <li class="list-group-item">
+                  DOI Prefix: <?= $config['doiPrefix']; ?>
+               </li>
+               <li class="list-group-item">
+                  API URL: <?= $config['url']; ?>
+               </li>
+            </ul>
+
+            <h2><span>Recent Reports</span></h2>
 
             <ul class="list-group mb-3">
                <?php list_files('reports', 5); ?>
             </ul>
 
 
-            <h2><span class="text-muted">Recent Uploads</span></h2>
+            <h2><span>Recent Uploads</span></h2>
             <ul class="list-group mb-3">
                <?php list_files('uploads', 5); ?>
             </ul>
