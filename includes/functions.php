@@ -7,10 +7,13 @@ function go_back() {
 
 
 // Loads the configuration file.
-function load_config_file() {
+function load_config_file($goBack = true) {
    if(!$config = parse_ini_file('config'.DIRECTORY_SEPARATOR.'config.ini')) {
       array_push($_SESSION['output'], 'Could not load the configuration file.');
-      go_back();
+
+      if($goBack) {
+         go_back();
+      }
    }
 
    return $config;
