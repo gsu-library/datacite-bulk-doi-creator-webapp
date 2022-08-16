@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once('includes'.DIRECTORY_SEPARATOR.'functions.php');
+$config = load_config_file(false);
 
 // Print output session variable.
 function print_output() {
@@ -84,7 +85,7 @@ if(!isset($_SESSION['csrfToken'])) {
       </div>
    </main>
 
-   <footer>
+   <footer class="container">
       <?php print_footer(); ?>
    </footer>
 </body>

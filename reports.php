@@ -44,7 +44,7 @@ $config = load_config_file();
       </div>
    </main>
 
-   <footer>
+   <footer class="container">
       <?php print_footer(); ?>
    </footer>
 </body>

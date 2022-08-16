@@ -98,7 +98,7 @@ function print_nav($currentPage) {
 // Prints the footer.
 function print_footer() {
    echo '
-   <div class="container text-center text-light bg-dark rounded py-2 my-2">
+   <div class="text-center text-light bg-dark rounded py-2 my-2">
       <p class="m-0">Visit our <a class="text-light" href="https://github.com/gsu-library/datacite-bulk-doi-creator-webapp/">GitHub Repository</a></p>
    </div>';
 }
