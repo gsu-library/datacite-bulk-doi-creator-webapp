@@ -36,7 +36,7 @@ function list_files($type, $amount) {
    foreach($files as $file) {
       echo '<li class="list-group-item d-flex justify-content-between lh-condensed">';
       echo '<div>';
-      echo '<a class="stretched-link" href="'.htmlspecialchars($file, ENT_QUOTES).'">'.htmlspecialchars(substr($file, 8), ENT_QUOTES).'</a>';
+      echo '<a class="stretched-link" href="'.htmlspecialchars($file, ENT_QUOTES).'" download>'.htmlspecialchars(substr($file, 8), ENT_QUOTES).'</a>';
       echo '<div class="text-muted small">'.date('F j, Y g:i a', filemtime($file)).'</div>';
       echo '</div>';
       echo '</li>';

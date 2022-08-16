@@ -3,7 +3,7 @@ session_start();
 require_once('includes'.DIRECTORY_SEPARATOR.'functions.php');
 
 // Print output session variable.
-function printOutput() {
+function print_output() {
    if(isset($_SESSION['output'])) {
       echo implode('<br>', $_SESSION['output']);
    }
@@ -13,9 +13,9 @@ function printOutput() {
 
 
 // Prints link to current report.
-function printReportLink() {
+function print_report_link() {
    if(isset($_SESSION['reportPath']) && $_SESSION['reportPath']) {
-      echo '<a href="'.htmlspecialchars($_SESSION['reportPath'], ENT_QUOTES).'">Download Report</a>';
+      echo '<a href="'.htmlspecialchars($_SESSION['reportPath'], ENT_QUOTES).'" download>Download Report</a>';
    }
 
    unset($_SESSION['reportPath']);
@@ -59,10 +59,10 @@ if(!isset($_SESSION['csrfToken'])) {
             </form>
 
             <label class="mt-5" for="output">Output</label>
-            <output class="output mb-5" id="output"><?php printOutput(); ?></output>
+            <output class="output mb-5" id="output"><?php print_output(); ?></output>
 
             <div class="report my-3">
-               <?php printReportLink(); ?>
+               <?php print_report_link(); ?>
             </div>
          </div>
 
