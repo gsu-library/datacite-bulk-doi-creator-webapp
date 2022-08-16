@@ -41,14 +41,16 @@ if(!isset($_SESSION['csrfToken'])) {
    <script src="js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
-   <div class="container">
-      <h1 class="my-4">DataCite Bulk DOI Creator</h1>
+   <header class="container">
+      <h1 class="my-4 text-center">DataCite Bulk DOI Creator</h1>
 
       <?php print_nav(basename(__FILE__)); ?>
+   </header>
 
+   <main class="container">
       <div class="row">
          <div class="col-lg-7">
-            <form action="submit.php" method="post" enctype="multipart/form-data">
+            <form class="mt-4" action="submit.php" method="post" enctype="multipart/form-data">
                <div class="form-group">
                   <label for="fileUpload">Upload File</label>
                   <input type="file" id="fileUpload" class="form-control-file" name="fileUpload" accept=".csv">
@@ -80,6 +82,10 @@ if(!isset($_SESSION['csrfToken'])) {
             </ul>
          </div>
       </div>
-   </div>
+   </main>
+
+   <footer>
+      <?php print_footer(); ?>
+   </footer>
 </body>
 </html>

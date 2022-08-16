@@ -18,11 +18,13 @@ $config = load_config_file();
    <script src="js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
-   <div class="container">
-      <h1 class="my-4">DataCite Bulk DOI Creator - Reports</h1>
+   <header class="container">
+      <h1 class="my-4 text-center">DataCite Bulk DOI Creator</h1>
 
       <?php print_nav(basename(__FILE__)); ?>
+   </header>
 
+   <main class="container">
       <div class="row">
          <div class="col-lg-6">
             <h2><span class="text-muted">Reports</span></h2>
@@ -40,6 +42,10 @@ $config = load_config_file();
             </ul>
          </div>
       </div>
-   </div>
+   </main>
+
+   <footer>
+      <?php print_footer(); ?>
+   </footer>
 </body>
 </html>
