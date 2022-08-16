@@ -18,34 +18,28 @@ $config = load_config_file();
    <script src="js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
-   <header class="container">
-      <h1 class="my-4 text-center">DataCite Bulk DOI Creator</h1>
+   <?php print_header(basename(__FILE__)); ?>
 
-      <?php print_nav(basename(__FILE__)); ?>
-   </header>
-
-   <main class="container">
+   <main class="container my-3">
       <div class="row">
-         <div class="col-lg-6">
+         <div class="col-lg-6 my-3">
             <h2><span>Reports</span></h2>
 
-            <ul class="list-group mb-3">
+            <ul class="list-group">
                <?php list_files('reports', $config['maxReportFiles']); ?>
             </ul>
          </div>
 
-         <div class="col-lg-6">
+         <div class="col-lg-6 my-3">
             <h2><span>Uploads</span></h2>
 
-            <ul class="list-group mb-3">
+            <ul class="list-group">
                <?php list_files('uploads', $config['maxSubmittedFiles']); ?>
             </ul>
          </div>
       </div>
    </main>
 
-   <footer class="container">
-      <?php print_footer(); ?>
-   </footer>
+   <?php print_footer(); ?>
 </body>
 </html>

@@ -42,16 +42,12 @@ if(!isset($_SESSION['csrfToken'])) {
    <script src="js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
-   <header class="container">
-      <h1 class="my-4 text-center">DataCite Bulk DOI Creator</h1>
+   <?php print_header(basename(__FILE__)); ?>
 
-      <?php print_nav(basename(__FILE__)); ?>
-   </header>
-
-   <main class="container">
-      <div class="row mt-3">
-         <div class="col-lg-7">
-            <form action="submit.php" method="post" enctype="multipart/form-data">
+   <main class="container my-3">
+      <div class="row">
+         <div class="col-lg-7 my-3">
+            <form class="mb-3" action="submit.php" method="post" enctype="multipart/form-data">
                <div class="form-group">
                   <label for="fileUpload">Upload File</label>
                   <input type="file" id="fileUpload" class="form-control-file" name="fileUpload" accept=".csv">
@@ -61,15 +57,15 @@ if(!isset($_SESSION['csrfToken'])) {
                <button type="submit" class="btn btn-primary" name="submit">Submit</button>
             </form>
 
-            <label class="mt-5" for="output">Output</label>
-            <output class="output mb-5" id="output"><?php print_output(); ?></output>
+            <label class="mt-3" for="output">Output</label>
+            <output class="output" id="output"><?php print_output(); ?></output>
 
-            <div class="report my-3">
+            <div class="report mt-3">
                <?php print_report_link(); ?>
             </div>
          </div>
 
-         <div class="col-lg-5">
+         <div class="col-lg-5 my-3">
             <h2><span>Configuration</span></h2>
             <ul class="list-group mb-3">
                <li class="list-group-item">
@@ -86,15 +82,14 @@ if(!isset($_SESSION['csrfToken'])) {
             </ul>
 
             <h2><span>Recent Uploads</span></h2>
-            <ul class="list-group mb-3">
+            <ul class="list-group">
                <?php list_files('uploads', 3); ?>
             </ul>
          </div>
       </div>
    </main>
 
-   <footer class="container">
-      <?php print_footer(); ?>
-   </footer>
+
+   <?php print_footer(); ?>
 </body>
 </html>

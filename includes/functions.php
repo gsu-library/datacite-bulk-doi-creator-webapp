@@ -46,57 +46,62 @@ function list_files($type, $amount) {
 
 
 // Prints the navigation, marking the current page as active.
-function print_nav($currentPage) {
+function print_header($currentPage) {
    echo '
-   <nav class="navbar rounded navbar-dark bg-dark navbar-expand-lg my-4">
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-         <span class="navbar-toggler-icon"></span>
-      </button>
+   <header class="container my-3">
+      <h1 class="text-center mb-3">DataCite Bulk DOI Creator</h1>
+      <nav class="navbar rounded navbar-dark bg-dark navbar-expand-lg">
+         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+         </button>
 
-      <div class="collapse navbar-collapse" id="navbarNavDropdown">
-         <ul class="navbar-nav">
-            <li class="nav-item'. ($currentPage === 'index.php' ? ' active' : '').'">
-               <a class="nav-link" href=".">Home</a>
-            </li>
-            <li class="nav-item'. ($currentPage === 'reports.php' ? ' active' : '').'">
-               <a class="nav-link" href="reports.php">Reports and Uploads</a>
-            </li>
-            <li class="nav-item">
-               <a class="nav-link" href="template.csv">Download CSV Template</a>
-            </li>
-         </ul>
+         <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul class="navbar-nav">
+               <li class="nav-item'. ($currentPage === 'index.php' ? ' active' : '').'">
+                  <a class="nav-link" href=".">Home</a>
+               </li>
+               <li class="nav-item'. ($currentPage === 'reports.php' ? ' active' : '').'">
+                  <a class="nav-link" href="reports.php">Reports and Uploads</a>
+               </li>
+               <li class="nav-item">
+                  <a class="nav-link" href="template.csv">Download CSV Template</a>
+               </li>
+            </ul>
 
-         <ul class="navbar-nav ml-auto">
-            <li class="nav-item dropdown">
-               <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
-                  DataCite
-               </a>
-               <div class="dropdown-menu">
-                  <a target="_blank" class="dropdown-item" href="https://datacite.org/">Homepage</a>
-                  <a target="_blank" class="dropdown-item" href="https://doi.datacite.org/sign-in">Sign-In</a>
-               </div>
-            </li>
-            <li class="nav-item dropdown">
-               <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
-                  Help
-               </a>
-               <div class="dropdown-menu">
-                  <a target="_blank" class="dropdown-item" href="https://github.com/gsu-library/datacite-bulk-doi-creator-webapp/blob/master/README.md">README</a>
-                  <a target="_blank" class="dropdown-item" href="https://support.datacite.org/">DataCite Support</a>
-                  <a target="_blank" class="dropdown-item" href="https://support.datacite.org/docs/api-error-codes">DataCite API Error Codes</a>
-                  <a target="_blank" class="dropdown-item" href="https://github.com/gsu-library/datacite-bulk-doi-creator-webapp/issues">Report an Issue/Request Enhancement</a>
-               </div>
-            </li>
-         </ul>
-      </div>
-   </nav>';
+            <ul class="navbar-nav ml-auto">
+               <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+                     DataCite
+                  </a>
+                  <div class="dropdown-menu">
+                     <a target="_blank" class="dropdown-item" href="https://datacite.org/">Homepage</a>
+                     <a target="_blank" class="dropdown-item" href="https://doi.datacite.org/sign-in">Sign-In</a>
+                  </div>
+               </li>
+               <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+                     Help
+                  </a>
+                  <div class="dropdown-menu">
+                     <a target="_blank" class="dropdown-item" href="https://github.com/gsu-library/datacite-bulk-doi-creator-webapp/blob/master/README.md">README</a>
+                     <a target="_blank" class="dropdown-item" href="https://support.datacite.org/">DataCite Support</a>
+                     <a target="_blank" class="dropdown-item" href="https://support.datacite.org/docs/api-error-codes">DataCite API Error Codes</a>
+                     <a target="_blank" class="dropdown-item" href="https://github.com/gsu-library/datacite-bulk-doi-creator-webapp/issues">Report an Issue/Request Enhancement</a>
+                  </div>
+               </li>
+            </ul>
+         </div>
+      </nav>
+   </header>';
 }
 
 
 // Prints the footer.
 function print_footer() {
    echo '
-   <div class="text-center text-light bg-dark rounded py-2 my-2">
-      <p class="m-0">Visit our <a class="text-light" href="https://github.com/gsu-library/datacite-bulk-doi-creator-webapp/">GitHub Repository</a></p>
-   </div>';
+   <footer class="container my-3">
+      <div class="text-center text-light bg-dark rounded py-2">
+         <p class="m-0">Visit our <a class="text-light" href="https://github.com/gsu-library/datacite-bulk-doi-creator-webapp/">GitHub Repository</a></p>
+      </div>
+   </footer>';
 }
