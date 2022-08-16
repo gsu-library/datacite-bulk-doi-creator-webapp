@@ -66,16 +66,13 @@ function print_nav($currentPage) {
          </ul>
 
          <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-               <a class="nav-link" href="https://github.com/gsu-library/datacite-bulk-doi-creator-webapp/">Bulk DOI Creator Repository</a>
-            </li>
             <li class="nav-item dropdown">
                <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
                   DataCite
                </a>
                <div class="dropdown-menu">
-                  <a class="dropdown-item" href="https://datacite.org/">Homepage</a>
-                  <a class="dropdown-item" href="https://doi.datacite.org/sign-in">Sign-In</a>
+                  <a target="_blank" class="dropdown-item" href="https://datacite.org/">Homepage</a>
+                  <a target="_blank" class="dropdown-item" href="https://doi.datacite.org/sign-in">Sign-In</a>
                </div>
             </li>
             <li class="nav-item dropdown">
@@ -83,13 +80,22 @@ function print_nav($currentPage) {
                   Help
                </a>
                <div class="dropdown-menu">
-                  <a class="dropdown-item" href="https://github.com/gsu-library/datacite-bulk-doi-creator-webapp/blob/master/README.md">README</a>
-                  <a class="dropdown-item" href="https://support.datacite.org/">DataCite Help</a>
-                  <a class="dropdown-item" href="https://github.com/gsu-library/datacite-bulk-doi-creator-webapp/issues">Report an Issue/Request Enhancement</a>
-                  <a class="dropdown-item" href="https://support.datacite.org/docs/api-error-codes">DataCite API Error/Status Codes</a>
+                  <a target="_blank" class="dropdown-item" href="https://github.com/gsu-library/datacite-bulk-doi-creator-webapp/blob/master/README.md">README</a>
+                  <a target="_blank" class="dropdown-item" href="https://support.datacite.org/">DataCite Support</a>
+                  <a target="_blank" class="dropdown-item" href="https://support.datacite.org/docs/api-error-codes">DataCite API Error Codes</a>
+                  <a target="_blank" class="dropdown-item" href="https://github.com/gsu-library/datacite-bulk-doi-creator-webapp/issues">Report an Issue/Request Enhancement</a>
                </div>
             </li>
          </ul>
       </div>
    </nav>';
+}
+
+
+// Prints the footer.
+function print_footer() {
+   echo '
+   <div class="container text-center text-light bg-dark rounded py-2 my-2">
+      <p class="m-0">Visit our <a class="text-light" href="https://github.com/gsu-library/datacite-bulk-doi-creator-webapp/">GitHub Repository</a></p>
+   </div>';
 }
