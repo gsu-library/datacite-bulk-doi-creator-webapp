@@ -166,8 +166,12 @@ curl_setopt_array($ch, [
    ]
 ]);
 
+
+$fileParts = pathinfo($uploadFullFilePath);
+$fileName = $fileParts['filename'];
+
 // Open a file for the upload report.
-if(!($reportFullFilePath = find_file_name('reports'.DIRECTORY_SEPARATOR.'report-'.basename($uploadFullFilePath), $config['maxReportFiles']))) {
+if(!($reportFullFilePath = find_file_name('reports'.DIRECTORY_SEPARATOR.basename($fileName).' report.csv', $config['maxReportFiles']))) {
    array_push($_SESSION['output'], 'There was an error saving the report file.');
    go_back();
 }
