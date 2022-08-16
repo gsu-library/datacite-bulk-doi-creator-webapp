@@ -18,7 +18,7 @@ function load_config_file() {
 
 
 // Lists out files in either the reports or uploads directories.
-function listFiles($type, $amount) {
+function list_files($type, $amount) {
    $files = glob($type.DIRECTORY_SEPARATOR.'*.csv');
 
    // Sort by last modified descending.
@@ -45,7 +45,7 @@ function listFiles($type, $amount) {
 
 
 // Prints the navigation, marking the current page as active.
-function printNav($currentPage) {
+function print_nav($currentPage) {
    echo '
    <nav class="navbar rounded navbar-dark bg-dark navbar-expand-lg my-4">
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">

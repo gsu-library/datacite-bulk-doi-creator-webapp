@@ -21,14 +21,14 @@ $config = load_config_file();
    <div class="container">
       <h1 class="my-4">DataCite Bulk DOI Creator - Reports</h1>
 
-      <?php printNav(basename(__FILE__)); ?>
+      <?php print_nav(basename(__FILE__)); ?>
 
       <div class="row">
          <div class="col-lg-6">
             <h2><span class="text-muted">Reports</span></h2>
 
             <ul class="list-group mb-3">
-               <?php listFiles('reports', $config['maxReportFiles']); ?>
+               <?php list_files('reports', $config['maxReportFiles']); ?>
             </ul>
          </div>
 
@@ -36,7 +36,7 @@ $config = load_config_file();
             <h2><span class="text-muted">Uploads</span></h2>
 
             <ul class="list-group mb-3">
-               <?php listFiles('uploads', $config['maxSubmittedFiles']); ?>
+               <?php list_files('uploads', $config['maxSubmittedFiles']); ?>
             </ul>
          </div>
       </div>

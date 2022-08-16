@@ -44,7 +44,7 @@ if(!isset($_SESSION['csrfToken'])) {
    <div class="container">
       <h1 class="my-4">DataCite Bulk DOI Creator</h1>
 
-      <?php printNav(basename(__FILE__)); ?>
+      <?php print_nav(basename(__FILE__)); ?>
 
       <div class="row">
          <div class="col-lg-7">
@@ -70,13 +70,13 @@ if(!isset($_SESSION['csrfToken'])) {
             <h2><span class="text-muted">Recent Reports</span></h2>
 
             <ul class="list-group mb-3">
-               <?php listFiles('reports', 5); ?>
+               <?php list_files('reports', 5); ?>
             </ul>
 
 
             <h2><span class="text-muted">Recent Uploads</span></h2>
             <ul class="list-group mb-3">
-               <?php listFiles('uploads', 5); ?>
+               <?php list_files('uploads', 5); ?>
             </ul>
          </div>
       </div>
