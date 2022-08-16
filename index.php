@@ -81,15 +81,13 @@ if(!isset($_SESSION['csrfToken'])) {
             </ul>
 
             <h2><span>Recent Reports</span></h2>
-
             <ul class="list-group mb-3">
-               <?php list_files('reports', 5); ?>
+               <?php list_files('reports', 3); ?>
             </ul>
-
 
             <h2><span>Recent Uploads</span></h2>
             <ul class="list-group mb-3">
-               <?php list_files('uploads', 5); ?>
+               <?php list_files('uploads', 3); ?>
             </ul>
          </div>
       </div>
