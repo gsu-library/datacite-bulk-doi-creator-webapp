@@ -38,7 +38,7 @@ creator{n}_given - creator given name
 creator{n}_family - creator family name  
 
 ### Errors
-If an error occurs a verbose message will be logged in the upload report. For more information on error codes please see DataCite's [API error code page](https://support.datacite.org/docs/api-error-codes).
+If an error occurs a verbose message will be logged on the page output and in the generated report. For more information on error codes please see DataCite's [API error code page](https://support.datacite.org/docs/api-error-codes).
 
 ## Dependencies
 - [Bootstrap](https://getbootstrap.com/) v4.6.1
