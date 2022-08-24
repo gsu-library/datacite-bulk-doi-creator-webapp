@@ -1,6 +1,5 @@
 {
   "name": "datacite-bulk-doi-creator-webapp",
-  "version": "0.1.0",
   "homepage": "https://github.com/gsu-library/datacite-bulk-doi-creator-webapp",
   "scripts": {
     "start": "npm-watch",
