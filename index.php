@@ -1,3 +1,32 @@
+<?php
+session_start();
+require_once('includes'.DIRECTORY_SEPARATOR.'functions.php');
+$config = load_config_file(false);
+
+// Print output session variable.
+function print_output() {
+   if(isset($_SESSION['output'])) {
+      echo implode('<br>', $_SESSION['output']);
+   }
+
+   $_SESSION['output'] = [];
+}
+
+
+// Prints link to current report.
+function print_report_link() {
+   if(isset($_SESSION['reportPath']) && $_SESSION['reportPath']) {
+      echo '<a href="'.htmlspecialchars($_SESSION['reportPath'], ENT_QUOTES).'" download>Download Report</a>';
+   }
+
+   unset($_SESSION['reportPath']);
+}
+
+
+if(!isset($_SESSION['csrfToken'])) {
+   $_SESSION['csrfToken'] = bin2hex(random_bytes(32));
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,57 +36,60 @@
    <title>DataCite Bulk DOI Creator</title>
 
    <link rel="stylesheet" href="css/bootstrap.min.css">
+   <link rel="stylesheet" href="css/styles.css">
 
    <script src="js/jquery.slim.min.js"></script>
    <script src="js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
-   <div class="container">
-      <h1 class="my-4">DataCite Bulk DOI Creator</h1>
+   <?php print_header(basename(__FILE__)); ?>
 
+   <main class="container my-3">
       <div class="row">
-         <div class="col-lg-8">
-            <h2>Something</h2>
-            <form action="submit.php" method="post" enctype="multipart/form-data">
+         <div class="col-lg-7 my-3">
+            <form class="mb-3" action="submit.php" method="post" enctype="multipart/form-data">
                <div class="form-group">
                   <label for="fileUpload">Upload File</label>
                   <input type="file" id="fileUpload" class="form-control-file" name="fileUpload" accept=".csv">
                </div>
 
+               <input type="hidden" name="csrfToken" value="<?= $_SESSION['csrfToken']; ?>">
                <button type="submit" class="btn btn-primary" name="submit">Submit</button>
             </form>
+
+            <label class="mt-3" for="output">Output</label>
+            <output class="output" id="output"><?php print_output(); ?></output>
+
+            <div class="report mt-3">
+               <?php print_report_link(); ?>
+            </div>
          </div>
 
-         <div class="col-lg-4">
-            <h2><span class="text-muted">Upload Reports</span></h2>
-
+         <div class="col-lg-5 my-3">
+            <h2><span>Configuration</span></h2>
             <ul class="list-group mb-3">
-               <li class="list-group-item d-flex justify-content-between lh-condensed">
-                  <a href="#">file a.csv</a>
+               <li class="list-group-item">
+                  DOI Prefix: <?= $config['doiPrefix']; ?>
                </li>
-               <li class="list-group-item d-flex justify-content-between lh-condensed">
-                  <a href="#">bio science.csv</a>
-               </li>
-               <li class="list-group-item d-flex justify-content-between lh-condensed">
-                  <a href="#">third file.csv</a>
+               <li class="list-group-item">
+                  API URL: <?= $config['url']; ?>
                </li>
             </ul>
 
-
-            <h2><span class="text-muted">Last Uploaded CSVs</span></h2>
+            <h2><span>Recent Reports</span></h2>
             <ul class="list-group mb-3">
-               <li class="list-group-item d-flex justify-content-between lh-condensed">
-                  <a href="#">upload_report.20220710-111111.csv</a>
-               </li>
-               <li class="list-group-item d-flex justify-content-between lh-condensed">
-                  <a href="#">upload_report.20220621-091825.csv</a>
-               </li>
-               <li class="list-group-item d-flex justify-content-between lh-condensed">
-                  <a href="#">upload_report.20220603-232246.csv</a>
-               </li>
+               <?php list_files('reports', 3); ?>
+            </ul>
+
+            <h2><span>Recent Uploads</span></h2>
+            <ul class="list-group">
+               <?php list_files('uploads', 3); ?>
             </ul>
          </div>
       </div>
-   </div>
+   </main>
+
+
+   <?php print_footer(); ?>
 </body>
 </html>

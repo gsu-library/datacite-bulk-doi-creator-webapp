@@ -1,0 +1,15 @@
+.list-group-item {
+   word-break: break-all;
+}
+.output {
+   display: block;
+   width: 100%;
+   background-color: rgb(233, 236, 239);
+   border-radius: 4px;
+   border: 1px solid rgb(206, 212, 218);
+   color: rgb(73, 80, 87);
+   padding: 6px 12px;
+   min-height: 300px;
+   max-height: 460px;
+   overflow-y: auto;
+}
