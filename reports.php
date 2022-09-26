@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once('includes'.DIRECTORY_SEPARATOR.'functions.php');
-$config = load_config_file();
+load_config_file();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -26,7 +26,7 @@ $config = load_config_file();
             <h2><span>Reports</span></h2>
 
             <ul class="list-group">
-               <?php list_files('reports', $config['maxReportFiles']); ?>
+               <?php list_files('reports', CONFIG['maxReportFiles']); ?>
             </ul>
          </div>
 
@@ -34,7 +34,7 @@ $config = load_config_file();
             <h2><span>Uploads</span></h2>
 
             <ul class="list-group">
-               <?php list_files('uploads', $config['maxSubmittedFiles']); ?>
+               <?php list_files('uploads', CONFIG['maxSubmittedFiles']); ?>
             </ul>
          </div>
       </div>
