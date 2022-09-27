@@ -21,8 +21,9 @@ function list_files($type, $amount) {
       return filemtime($x) < filemtime($y);
    });
 
-   if(empty($files)) {
+   if(empty($files) || $amount === 0) {
       echo '<li class="list-group-item">no '.$type.' found</li>';
+      return;
    }
    else {
       $files = array_slice($files, 0, $amount);
