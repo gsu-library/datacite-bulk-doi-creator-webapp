@@ -16,6 +16,10 @@ function in_array_all($needles, $haystack) {
 
 // Removes oldest files from directory.
 function remove_old_files($filePattern, $maxFileCount) {
+   if($maxFileCount < 1) {
+      $maxFileCount = 1;
+   }
+
    $files = glob($filePattern);
    $extraFiles = count($files) - $maxFileCount;
 
@@ -33,14 +37,15 @@ function remove_old_files($filePattern, $maxFileCount) {
 
 
 // Returns a valid file name.
-function find_file_name($fileName, $maxCount) {
+function find_file_name($fileName) {
    if(!file_exists($fileName)) {
       return $fileName;
    }
 
    $fileParts = pathinfo($fileName);
+   $fileCount = count(glob($fileParts['dirname'] . DIRECTORY_SEPARATOR . "*"));
 
-   for($i = 1; $i < $maxCount; $i++) {
+   for($i = 1; $i <= $fileCount; $i++) {
       $tempName = $fileParts['dirname'] . DIRECTORY_SEPARATOR . $fileParts['filename'] . " ($i)." . $fileParts['extension'];
 
       if(!file_exists($tempName)) {
@@ -82,7 +87,7 @@ if($uploadFileName = $_FILES['fileUpload']['name'] ?? null) {
       go_home();
    }
 
-   if(!($uploadFullFilePath = find_file_name('uploads'.DIRECTORY_SEPARATOR.$uploadFileName, CONFIG['maxSubmittedFiles']))) {
+   if(!($uploadFullFilePath = find_file_name('uploads'.DIRECTORY_SEPARATOR.$uploadFileName))) {
       array_push($_SESSION['output'], 'There was an error saving the uploaded file.');
       go_home();
    }
@@ -93,7 +98,7 @@ if($uploadFileName = $_FILES['fileUpload']['name'] ?? null) {
    remove_old_files('uploads'.DIRECTORY_SEPARATOR.'*.csv', CONFIG['maxSubmittedFiles']);
 }
 else {
-   array_push($_SESSION['output'], 'There was an error saving the uploaded file.');
+   array_push($_SESSION['output'], 'Could not find uploaded file.');
    go_home();
 }
 
@@ -171,7 +176,7 @@ $fileParts = pathinfo($uploadFullFilePath);
 $fileName = $fileParts['filename'];
 
 // Open a file for the upload report.
-if(!($reportFullFilePath = find_file_name('reports'.DIRECTORY_SEPARATOR.basename($fileName).' report.csv', CONFIG['maxReportFiles']))) {
+if(!($reportFullFilePath = find_file_name('reports'.DIRECTORY_SEPARATOR.basename($fileName).' report.csv'))) {
    array_push($_SESSION['output'], 'There was an error saving the report file.');
    go_home();
 }
