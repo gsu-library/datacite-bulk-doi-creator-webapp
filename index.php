@@ -78,12 +78,12 @@ if(!isset($_SESSION['csrfToken'])) {
 
             <h2><span>Recent Reports</span></h2>
             <ul class="list-group mb-3">
-               <?php list_files('reports', 3); ?>
+               <?php list_files('reports', min(3, CONFIG['maxReportFiles'])); ?>
             </ul>
 
             <h2><span>Recent Uploads</span></h2>
             <ul class="list-group">
-               <?php list_files('uploads', 3); ?>
+               <?php list_files('uploads', min(3, CONFIG['maxSubmittedFiles'])); ?>
             </ul>
          </div>
       </div>
