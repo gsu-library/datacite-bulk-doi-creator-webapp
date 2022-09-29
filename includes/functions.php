@@ -1,22 +1,14 @@
 <?php
 // Go back to the index page.
-function go_back() {
+function go_home() {
    header('location: .');
    exit;
 }
 
 
 // Loads the configuration file.
-function load_config_file($goBack = true) {
-   if(!$config = parse_ini_file('config'.DIRECTORY_SEPARATOR.'config.ini')) {
-      array_push($_SESSION['output'], 'Could not load the configuration file.');
-
-      if($goBack) {
-         go_back();
-      }
-   }
-
-   return $config;
+function load_config_file() {
+   require_once('config'.DIRECTORY_SEPARATOR.'config.php');
 }
 
 
@@ -29,8 +21,9 @@ function list_files($type, $amount) {
       return filemtime($x) < filemtime($y);
    });
 
-   if(empty($files)) {
+   if(empty($files) || $amount <= 0) {
       echo '<li class="list-group-item">no '.$type.' found</li>';
+      return;
    }
    else {
       $files = array_slice($files, 0, $amount);

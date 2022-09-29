@@ -3,7 +3,7 @@ Code Repository: https://github.com/gsu-library/datacite-bulk-doi-creator-webapp
 Author: Matt Brooks <mbrooks34@gsu.edu>  
 Date Created: 2022-06-29  
 License: [GPL3](LICENSE)  
-Version: 1.0.0
+Version: 1.1.0
 
 ## Description
 A PHP WebApp that bulk creates DataCite DOIs from a provided CSV file. DOIs are created in the findable state. If you are looking for the python version of this WebApp see [DataCite Bulk DOI Creator](https://github.com/gsu-library/datacite-bulk-doi-creator).
@@ -14,7 +14,7 @@ For more information about DOIs please see DataCite's [support page](https://sup
 Put the repository files in a folder that is within Apache's webroot.
 
 ### Configuration
-Rename config/config.sample.ini to config/config.ini and fill in your DOI prefix, username (repository ID), and password. If wanting to test the script out with the test DataCite API replace the URL with the test API URL (https://api.test.datacite.org/dois) and credentials. There are other configuration options that can be adjusted if wanted.
+Rename config/config.sample.php to config/config.php and fill in your DOI prefix, username (repository ID), and password. If wanting to test the script out with the test DataCite API replace the URL with the test API URL (https://api.test.datacite.org/dois) and credentials. There are other configuration options that can be adjusted if wanted.
 
 **It is important that the config folder and its contents are not readable from a web browser. If not using Apache, the config/.htaccess file should be replaced with something denying web access to the contents of the folder.**
 

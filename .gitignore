@@ -3,4 +3,4 @@ reports/
 uploads/
 .htaccess
 .htpasswd
-config.ini
+config.php

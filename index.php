@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once('includes'.DIRECTORY_SEPARATOR.'functions.php');
-$config = load_config_file(false);
+load_config_file();
 
 // Print output session variable.
 function print_output() {
@@ -69,21 +69,21 @@ if(!isset($_SESSION['csrfToken'])) {
             <h2><span>Configuration</span></h2>
             <ul class="list-group mb-3">
                <li class="list-group-item">
-                  DOI Prefix: <?= $config['doiPrefix']; ?>
+                  DOI Prefix: <?= CONFIG['doiPrefix']; ?>
                </li>
                <li class="list-group-item">
-                  API URL: <?= $config['url']; ?>
+                  API URL: <?= CONFIG['url']; ?>
                </li>
             </ul>
 
             <h2><span>Recent Reports</span></h2>
             <ul class="list-group mb-3">
-               <?php list_files('reports', 3); ?>
+               <?php list_files('reports', min(3, CONFIG['maxReportFiles'])); ?>
             </ul>
 
             <h2><span>Recent Uploads</span></h2>
             <ul class="list-group">
-               <?php list_files('uploads', 3); ?>
+               <?php list_files('uploads', min(3, CONFIG['maxSubmittedFiles'])); ?>
             </ul>
          </div>
       </div>

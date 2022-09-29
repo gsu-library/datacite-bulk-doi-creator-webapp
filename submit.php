@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once('includes'.DIRECTORY_SEPARATOR.'functions.php');
-$config = load_config_file();
+load_config_file();
 
 
 $_SESSION['output'] = [];
@@ -16,6 +16,10 @@ function in_array_all($needles, $haystack) {
 
 // Removes oldest files from directory.
 function remove_old_files($filePattern, $maxFileCount) {
+   if($maxFileCount < 1) {
+      $maxFileCount = 1;
+   }
+
    $files = glob($filePattern);
    $extraFiles = count($files) - $maxFileCount;
 
@@ -33,14 +37,15 @@ function remove_old_files($filePattern, $maxFileCount) {
 
 
 // Returns a valid file name.
-function find_file_name($fileName, $maxCount) {
+function find_file_name($fileName) {
    if(!file_exists($fileName)) {
       return $fileName;
    }
 
    $fileParts = pathinfo($fileName);
+   $fileCount = count(glob($fileParts['dirname'] . DIRECTORY_SEPARATOR . "*"));
 
-   for($i = 1; $i < $maxCount; $i++) {
+   for($i = 1; $i <= $fileCount; $i++) {
       $tempName = $fileParts['dirname'] . DIRECTORY_SEPARATOR . $fileParts['filename'] . " ($i)." . $fileParts['extension'];
 
       if(!file_exists($tempName)) {
@@ -56,12 +61,12 @@ function find_file_name($fileName, $maxCount) {
 if(!DEBUG) {
    if(!isset($_POST['csrfToken']) || !isset($_SESSION['csrfToken'])) {
       array_push($_SESSION['output'], 'CSRF token not found.');
-      go_back();
+      go_home();
    }
    else {
       if($_POST['csrfToken'] !== $_SESSION['csrfToken']) {
          array_push($_SESSION['output'], 'The CSRF token is invalid.');
-         go_back();
+         go_home();
       }
       else {
          unset($_SESSION['csrfToken']);
@@ -72,42 +77,42 @@ if(!DEBUG) {
 // Check for PHP cURL.
 if(!function_exists('curl_init')) {
    array_push($_SESSION['output'], 'Please install/enable the PHP cURL library.');
-   go_back();
+   go_home();
 }
 
 // Check upload and move it to folder.
 if($uploadFileName = $_FILES['fileUpload']['name'] ?? null) {
-   if($_FILES['fileUpload']['size'] > $config['maxUploadSize']){
+   if($_FILES['fileUpload']['size'] > CONFIG['maxUploadSize']){
       array_push($_SESSION['output'], 'The uploaded file is too large.');
-      go_back();
+      go_home();
    }
 
-   if(!($uploadFullFilePath = find_file_name('uploads'.DIRECTORY_SEPARATOR.$uploadFileName, $config['maxSubmittedFiles']))) {
+   if(!($uploadFullFilePath = find_file_name('uploads'.DIRECTORY_SEPARATOR.$uploadFileName))) {
       array_push($_SESSION['output'], 'There was an error saving the uploaded file.');
-      go_back();
+      go_home();
    }
 
    echo '<pre>'.print_r($_FILES['fileUpload'], true).'</pre>';
 
    move_uploaded_file($_FILES['fileUpload']['tmp_name'], $uploadFullFilePath);
-   remove_old_files('uploads'.DIRECTORY_SEPARATOR.'*.csv', $config['maxSubmittedFiles']);
+   remove_old_files('uploads'.DIRECTORY_SEPARATOR.'*.csv', CONFIG['maxSubmittedFiles']);
 }
 else {
-   array_push($_SESSION['output'], 'There was an error saving the uploaded file.');
-   go_back();
+   array_push($_SESSION['output'], 'Could not find uploaded file.');
+   go_home();
 }
 
 // Open the uploaded file.
 if(!$uploadFp = fopen($uploadFullFilePath, 'r')) {
    array_push($_SESSION['output'], 'There was an error opening the uploaded file.');
-   go_back();
+   go_home();
 }
 
 
 // Save file headers.
 if(($headers = fgetcsv($uploadFp)) === false) {
    array_push($_SESSION['output'], 'No data was found in the uploaded file.');
-   go_back();
+   go_home();
 }
 
 // Trim and lowercase headers in CSV file.
@@ -132,7 +137,7 @@ $requiredHeaders = [
 
 if(!in_array_all($requiredHeaders, $headers)) {
    array_push($_SESSION['output'], 'The uploaded CSV file is missing required headers.');
-   go_back();
+   go_home();
 }
 
 // Find how many creator headers are present.
@@ -156,11 +161,11 @@ fclose($uploadFp);
 $ch = curl_init();
 
 curl_setopt_array($ch, [
-   CURLOPT_URL => $config['url'],
+   CURLOPT_URL => CONFIG['url'],
    CURLOPT_POST => true,
    CURLOPT_RETURNTRANSFER => true,
    CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
-   CURLOPT_USERPWD => $config['username'].':'.$config['password'],
+   CURLOPT_USERPWD => CONFIG['username'].':'.CONFIG['password'],
    CURLOPT_HTTPHEADER => [
       'Content-Type: application/vnd.api+json'
    ]
@@ -171,14 +176,14 @@ $fileParts = pathinfo($uploadFullFilePath);
 $fileName = $fileParts['filename'];
 
 // Open a file for the upload report.
-if(!($reportFullFilePath = find_file_name('reports'.DIRECTORY_SEPARATOR.basename($fileName).' report.csv', $config['maxReportFiles']))) {
+if(!($reportFullFilePath = find_file_name('reports'.DIRECTORY_SEPARATOR.basename($fileName).' report.csv'))) {
    array_push($_SESSION['output'], 'There was an error saving the report file.');
-   go_back();
+   go_home();
 }
 
 if(!$reportFp = fopen($reportFullFilePath, 'w')) {
    array_push($_SESSION['output'], 'Cannot write to the reports folder.');
-   go_back();
+   go_home();
 }
 
 // Save report path to add link on index page.
@@ -190,7 +195,7 @@ fputcsv($reportFp, ['doi_suffix', 'doi_url', 'status', 'error']);
 // Process file data and create report.
 $proccessedCsv = [];
 foreach($fileData as $row) {
-   $doi = $config['doiPrefix'].'/'.$row['doi_suffix'];
+   $doi = CONFIG['doiPrefix'].'/'.$row['doi_suffix'];
    $creators = [];
 
    // Process multiple creators.
@@ -251,9 +256,9 @@ foreach($fileData as $row) {
 }
 
 fclose($reportFp);
-remove_old_files('reports'.DIRECTORY_SEPARATOR.'*.csv', $config['maxReportFiles']);
+remove_old_files('reports'.DIRECTORY_SEPARATOR.'*.csv', CONFIG['maxReportFiles']);
 curl_close($ch);
 
 if(!DEBUG) {
-   go_back();
+   go_home();
 }
