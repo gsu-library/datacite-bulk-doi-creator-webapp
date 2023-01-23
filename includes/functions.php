@@ -1,5 +1,6 @@
 <?php
 // Go back to the index page.
+// TODO: check to see if this needs to be loaded on any pages or just on includes.
 function go_home() {
    header('location: .');
    exit;

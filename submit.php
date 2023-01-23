@@ -1,84 +1,17 @@
 <?php
 session_start();
 require_once('includes'.DIRECTORY_SEPARATOR.'functions.php');
+require_once('includes'.DIRECTORY_SEPARATOR.'submit_functions.php');
 load_config_file();
 
 
-$_SESSION['output'] = [];
 const DEBUG = false;
+$_SESSION['output'] = [];
 
 
-// Check if all needles exist in haystack.
-function in_array_all($needles, $haystack) {
-   return empty(array_diff($needles, $haystack));
-}
+check_capabilities();
+validate_csrf_token();
 
-
-// Removes oldest files from directory.
-function remove_old_files($filePattern, $maxFileCount) {
-   if($maxFileCount < 1) {
-      $maxFileCount = 1;
-   }
-
-   $files = glob($filePattern);
-   $extraFiles = count($files) - $maxFileCount;
-
-   if($extraFiles > 0) {
-      // Sort by last modified ascending.
-      usort($files, function($x, $y) {
-         return filemtime($x) > filemtime($y);
-      });
-
-      for($i = 0; $i < $extraFiles; $i++) {
-         unlink($files[$i]);
-      }
-   }
-}
-
-
-// Returns a valid file name.
-function find_file_name($fileName) {
-   if(!file_exists($fileName)) {
-      return $fileName;
-   }
-
-   $fileParts = pathinfo($fileName);
-   $fileCount = count(glob($fileParts['dirname'] . DIRECTORY_SEPARATOR . "*"));
-
-   for($i = 1; $i <= $fileCount; $i++) {
-      $tempName = $fileParts['dirname'] . DIRECTORY_SEPARATOR . $fileParts['filename'] . " ($i)." . $fileParts['extension'];
-
-      if(!file_exists($tempName)) {
-         return $tempName;
-      }
-   }
-
-   return null;
-}
-
-
-// Check CSRF token.
-if(!DEBUG) {
-   if(!isset($_POST['csrfToken']) || !isset($_SESSION['csrfToken'])) {
-      array_push($_SESSION['output'], 'CSRF token not found.');
-      go_home();
-   }
-   else {
-      if($_POST['csrfToken'] !== $_SESSION['csrfToken']) {
-         array_push($_SESSION['output'], 'The CSRF token is invalid.');
-         go_home();
-      }
-      else {
-         unset($_SESSION['csrfToken']);
-      }
-   }
-}
-
-// Check for PHP cURL.
-if(!function_exists('curl_init')) {
-   array_push($_SESSION['output'], 'Please install/enable the PHP cURL library.');
-   go_home();
-}
 
 // Check upload and move it to folder.
 if($uploadFileName = $_FILES['fileUpload']['name'] ?? null) {
@@ -92,6 +25,7 @@ if($uploadFileName = $_FILES['fileUpload']['name'] ?? null) {
       go_home();
    }
 
+   //TODO: remove?
    echo '<pre>'.print_r($_FILES['fileUpload'], true).'</pre>';
 
    move_uploaded_file($_FILES['fileUpload']['tmp_name'], $uploadFullFilePath);
@@ -161,6 +95,7 @@ fclose($uploadFp);
 $ch = curl_init();
 
 curl_setopt_array($ch, [
+   CURLOPT_SSL_VERIFYPEER => false, // for dev only
    CURLOPT_URL => CONFIG['url'],
    CURLOPT_POST => true,
    CURLOPT_RETURNTRANSFER => true,
