@@ -95,7 +95,7 @@ fclose($uploadFp);
 $ch = curl_init();
 
 curl_setopt_array($ch, [
-   CURLOPT_SSL_VERIFYPEER => false, // for dev only
+   CURLOPT_SSL_VERIFYPEER => false, //TODO: for dev only
    CURLOPT_URL => CONFIG['url'],
    CURLOPT_POST => true,
    CURLOPT_RETURNTRANSFER => true,
