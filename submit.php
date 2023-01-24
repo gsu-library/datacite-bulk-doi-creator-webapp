@@ -5,36 +5,8 @@ require_once('includes'.DIRECTORY_SEPARATOR.'submit_functions.php');
 load_config_file();
 
 
-const DEBUG = false;
 $_SESSION['output'] = [];
-
-
-check_capabilities();
-validate_csrf_token();
-$uploadFullPath = process_uploaded_file(); //TODO: var name
-
-
-
-// Open the uploaded file.
-if(!$uploadFp = fopen($uploadFullPath, 'r')) {
-   array_push($_SESSION['output'], 'There was an error opening the uploaded file.');
-   go_home();
-}
-
-
-// Save file headers.
-if(($headers = fgetcsv($uploadFp)) === false) {
-   array_push($_SESSION['output'], 'No data was found in the uploaded file.');
-   go_home();
-}
-
-// Trim and lowercase headers in CSV file.
-$headers = array_map(function($header){
-   return strtolower(trim($header));
-}, $headers);
-
-// Make sure CSV file has all required headers.
-// TODO: where does this belong?
+// Headers required to process the upload file.
 $requiredHeaders = [
    'doi_suffix',
    'title',
@@ -44,11 +16,36 @@ $requiredHeaders = [
    'publisher',
    'source_url',
    'creator1',
-   'creator1_type',
+   'creator1_type', // TODO: will depend on orchid id
+                    // don't require and assume personal?
    'creator1_given',
    'creator1_family',
 ];
 
+
+check_capabilities();
+validate_csrf_token();
+$uploadFullPath = process_uploaded_file(); //TODO: var name
+
+
+// Open the uploaded file.
+if(!$uploadFp = fopen($uploadFullPath, 'r')) {
+   array_push($_SESSION['output'], 'There was an error opening the uploaded file.');
+   go_home();
+}
+
+// Save file headers.
+if(($headers = fgetcsv($uploadFp)) === false) {
+   array_push($_SESSION['output'], 'No data was found in the uploaded file.');
+   go_home();
+}
+
+// Trim and lowercase headers in CSV file.
+$headers = array_map(function($header) {
+   return strtolower(trim($header));
+}, $headers);
+
+// Make sure CSV file has all required headers.
 if(!in_array_all($requiredHeaders, $headers)) {
    array_push($_SESSION['output'], 'The uploaded CSV file is missing required headers.');
    go_home();
@@ -65,6 +62,7 @@ while(in_array('creator'.$i, $headers)) {
 $fileData = [];
 
 // Retrieve the rest of the file.
+// TODO: At some point process a row at a time instead of saving all records to array.
 while(($row = fgetcsv($uploadFp)) !== false) {
    $fileData[] = array_combine($headers, $row);
 }
@@ -173,7 +171,4 @@ foreach($fileData as $row) {
 fclose($reportFp);
 remove_old_files('reports'.DIRECTORY_SEPARATOR.'*.csv', CONFIG['maxReportFiles']);
 curl_close($ch);
-
-if(!DEBUG) {
-   go_home();
-}
+go_home();
