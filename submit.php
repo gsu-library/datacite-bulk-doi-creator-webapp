@@ -11,33 +11,12 @@ $_SESSION['output'] = [];
 
 check_capabilities();
 validate_csrf_token();
+$uploadFullPath = process_uploaded_file(); //TODO: var name
 
 
-// Check upload and move it to folder.
-if($uploadFileName = $_FILES['fileUpload']['name'] ?? null) {
-   if($_FILES['fileUpload']['size'] > CONFIG['maxUploadSize']){
-      array_push($_SESSION['output'], 'The uploaded file is too large.');
-      go_home();
-   }
-
-   if(!($uploadFullFilePath = find_file_name('uploads'.DIRECTORY_SEPARATOR.$uploadFileName))) {
-      array_push($_SESSION['output'], 'There was an error saving the uploaded file.');
-      go_home();
-   }
-
-   //TODO: remove?
-   echo '<pre>'.print_r($_FILES['fileUpload'], true).'</pre>';
-
-   move_uploaded_file($_FILES['fileUpload']['tmp_name'], $uploadFullFilePath);
-   remove_old_files('uploads'.DIRECTORY_SEPARATOR.'*.csv', CONFIG['maxSubmittedFiles']);
-}
-else {
-   array_push($_SESSION['output'], 'Could not find uploaded file.');
-   go_home();
-}
 
 // Open the uploaded file.
-if(!$uploadFp = fopen($uploadFullFilePath, 'r')) {
+if(!$uploadFp = fopen($uploadFullPath, 'r')) {
    array_push($_SESSION['output'], 'There was an error opening the uploaded file.');
    go_home();
 }
@@ -55,6 +34,7 @@ $headers = array_map(function($header){
 }, $headers);
 
 // Make sure CSV file has all required headers.
+// TODO: where does this belong?
 $requiredHeaders = [
    'doi_suffix',
    'title',
@@ -107,7 +87,7 @@ curl_setopt_array($ch, [
 ]);
 
 
-$fileParts = pathinfo($uploadFullFilePath);
+$fileParts = pathinfo($uploadFullPath);
 $fileName = $fileParts['filename'];
 
 // Open a file for the upload report.
