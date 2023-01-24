@@ -1,5 +1,9 @@
 <?php
-// Print output session variable.
+/**
+ * Prints the $output session variable.
+ *
+ * @return void
+ */
 function print_output() {
    if(isset($_SESSION['output'])) {
       echo implode('<br>', $_SESSION['output']);
@@ -9,7 +13,11 @@ function print_output() {
 }
 
 
-// Prints link to current report.
+/**
+ * Prints a link to the current report found in session variable $reportPath.
+ *
+ * @return void
+ */
 function print_report_link() {
    if(isset($_SESSION['reportPath']) && $_SESSION['reportPath']) {
       echo '<a href="'.htmlspecialchars($_SESSION['reportPath'], ENT_QUOTES).'" download>Download Report</a>';
@@ -19,7 +27,11 @@ function print_report_link() {
 }
 
 
-// Sets the CSRF token in session.
+/**
+ * Sets the CSRF token in session ($csrfToken).
+ *
+ * @return void
+ */
 function set_csrf_token() {
    if(!isset($_SESSION['csrfToken'])) {
       $_SESSION['csrfToken'] = bin2hex(random_bytes(32));

@@ -1,11 +1,23 @@
 <?php
-// Check if all needles exist in haystack.
+/**
+ * Check if all needles exist in haystack.
+ *
+ * @param array   $needles    Array of values to search for.
+ * @param array   $haystack   Array of values to search in.
+ * @return bool
+ */
 function in_array_all($needles, $haystack) {
    return empty(array_diff($needles, $haystack));
 }
 
 
-// Removes oldest files from directory.
+/**
+ * Remove oldest files from directory.
+ *
+ * @param string  $filePattern   File name pattern to search for.
+ * @param integer $maxFileCount  Max number of files to keep.
+ * @return void
+ */
 function remove_old_files($filePattern, $maxFileCount) {
    if($maxFileCount < 1) {
       $maxFileCount = 1;
@@ -27,7 +39,12 @@ function remove_old_files($filePattern, $maxFileCount) {
 }
 
 
-// Returns a valid file name.
+/**
+ * Return a valid file name.
+ *
+ * @param string $fileName Desired file name.
+ * @return string|null
+ */
 function find_file_name($fileName) {
    if(!file_exists($fileName)) {
       return $fileName;
@@ -48,8 +65,14 @@ function find_file_name($fileName) {
 }
 
 
-// Check for PHP cURL.
-// TODO: Add more checks here (file write, etc.)
+
+/**
+ * Check for PHP cURL.
+ *
+ * //TODO: Add more checks here (file write, etc.)
+ *
+ * @return void
+ */
 function check_capabilities() {
    if(!function_exists('curl_init')) {
       array_push($_SESSION['output'], 'Please install/enable the PHP cURL library.');
@@ -58,7 +81,11 @@ function check_capabilities() {
 }
 
 
-// Validate CSRF token.
+/**
+ * Validates CSRF token.
+ *
+ * @return void
+ */
 function validate_csrf_token() {
    if(!DEBUG) {
       if(!isset($_POST['csrfToken']) || !isset($_SESSION['csrfToken'])) {
