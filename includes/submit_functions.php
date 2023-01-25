@@ -117,9 +117,7 @@ function find_file_name($fileName) {
 
 
 /**
- * Process uploaded file.
- *
- * Checks for upload file, file size, and file name.
+ * Process uploaded file. Checks for upload file, file size, and file name.
  *
  * @return string Full file path of the uploaded file.
  */
