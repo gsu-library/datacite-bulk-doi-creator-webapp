@@ -149,6 +149,50 @@ function process_uploaded_file() {
 
 
 /**
+ * Processes the headers in the uploaded file. Checks to make sure all required headers are present.
+ *
+ * @param   resource $uploadFp File pointer to upload file.
+ * @return  array    Array of normalized headers from the upload file.
+ */
+function process_upload_headers($uploadFp) {
+   // Headers required to process the upload file.
+   $requiredHeaders = [
+      'doi_suffix',
+      'title',
+      'year',
+      'type',
+      'description',
+      'publisher',
+      'source_url',
+      'creator1',
+      'creator1_type', // TODO: will depend on orchid id
+                     // don't require and assume personal?
+      'creator1_given',
+      'creator1_family',
+   ];
+
+   // Save file headers.
+   if(($headers = fgetcsv($uploadFp)) === false) {
+      array_push($_SESSION['output'], 'No data was found in the uploaded file.');
+      go_home();
+   }
+
+   // Trim and lowercase headers in CSV file.
+   $headers = array_map(function($header) {
+      return strtolower(trim($header));
+   }, $headers);
+
+   // Make sure CSV file has all required headers.
+   if(!in_array_all($requiredHeaders, $headers)) {
+      array_push($_SESSION['output'], 'The uploaded CSV file is missing required headers.');
+      go_home();
+   }
+
+   return $headers;
+}
+
+
+/**
  * Opens up a file to create a report. The file name is based on the submitted file.
  *
  * @param   string   $uploadFullPath Full path of the uploaded file.

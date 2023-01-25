@@ -6,27 +6,11 @@ load_config_file();
 
 
 $_SESSION['output'] = [];
-// Headers required to process the upload file.
-$requiredHeaders = [
-   'doi_suffix',
-   'title',
-   'year',
-   'type',
-   'description',
-   'publisher',
-   'source_url',
-   'creator1',
-   'creator1_type', // TODO: will depend on orchid id
-                    // don't require and assume personal?
-   'creator1_given',
-   'creator1_family',
-];
 
 
 check_capabilities();
 validate_csrf_token();
-$uploadFullPath = process_uploaded_file(); //TODO: var name
-
+$uploadFullPath = process_uploaded_file();
 
 // Open the uploaded file.
 if(!$uploadFp = fopen($uploadFullPath, 'r')) {
@@ -34,30 +18,10 @@ if(!$uploadFp = fopen($uploadFullPath, 'r')) {
    go_home();
 }
 
-
-//TODO: headers function?
-// Save file headers.
-if(($headers = fgetcsv($uploadFp)) === false) {
-   array_push($_SESSION['output'], 'No data was found in the uploaded file.');
-   go_home();
-}
-
-// Trim and lowercase headers in CSV file.
-$headers = array_map(function($header) {
-   return strtolower(trim($header));
-}, $headers);
-
-// Make sure CSV file has all required headers.
-if(!in_array_all($requiredHeaders, $headers)) {
-   array_push($_SESSION['output'], 'The uploaded CSV file is missing required headers.');
-   go_home();
-}
+$headers = process_upload_headers($uploadFp);
 
 // Find how many creator headers are present.
-// TODO: does this go somewhere else?
 $creatorHeaders = preg_grep('/^creator\d+$/', $headers);
-
-/*************************************************************************************/
 
 // Open file for reporting.
 $reportFp = open_report_file($uploadFullPath);
@@ -65,12 +29,11 @@ $reportFp = open_report_file($uploadFullPath);
 // Add headers to upload report file.
 fputcsv($reportFp, ['doi_suffix', 'doi_url', 'status', 'error']);
 
-
 // Setup cURL.
 $ch = curl_init();
 
 curl_setopt_array($ch, [
-   CURLOPT_SSL_VERIFYPEER => false, //TODO: for dev only
+   // CURLOPT_SSL_VERIFYPEER => false, // for dev only
    CURLOPT_URL => CONFIG['url'],
    CURLOPT_POST => true,
    CURLOPT_RETURNTRANSFER => true,
@@ -135,7 +98,7 @@ while(($row = fgetcsv($uploadFp)) !== false) {
    fputcsv($reportFp, [$row['doi_suffix'], 'https://doi.org/'.$doi, curl_getinfo($ch, CURLINFO_HTTP_CODE), $error]);
 
    if($error) {
-      $error = ', '.$error;
+      $error = ', '.lcfirst($error);
    }
 
    array_push($_SESSION['output'], '- submitted doi suffix '.$row['doi_suffix'].' with status of '.curl_getinfo($ch, CURLINFO_HTTP_CODE).$error);
