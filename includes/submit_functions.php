@@ -1,72 +1,5 @@
 <?php
 /**
- * Check if all needles exist in haystack.
- *
- * @param array   $needles    Array of values to search for.
- * @param array   $haystack   Array of values to search in.
- * @return bool
- */
-function in_array_all($needles, $haystack) {
-   return empty(array_diff($needles, $haystack));
-}
-
-
-/**
- * Remove oldest files from directory.
- *
- * @param string  $filePattern   File name pattern to search for.
- * @param integer $maxFileCount  Max number of files to keep.
- * @return void
- */
-function remove_old_files($filePattern, $maxFileCount) {
-   if($maxFileCount < 1) {
-      $maxFileCount = 1;
-   }
-
-   $files = glob($filePattern);
-   $extraFiles = count($files) - $maxFileCount;
-
-   if($extraFiles > 0) {
-      // Sort by last modified ascending.
-      usort($files, function($x, $y) {
-         return filemtime($x) > filemtime($y);
-      });
-
-      for($i = 0; $i < $extraFiles; $i++) {
-         unlink($files[$i]);
-      }
-   }
-}
-
-
-/**
- * Return a valid file name.
- *
- * @param string $fileName Desired file name.
- * @return string|null
- */
-function find_file_name($fileName) {
-   if(!file_exists($fileName)) {
-      return $fileName;
-   }
-
-   $fileParts = pathinfo($fileName);
-   $fileCount = count(glob($fileParts['dirname'] . DIRECTORY_SEPARATOR . "*"));
-
-   for($i = 1; $i <= $fileCount; $i++) {
-      $tempName = $fileParts['dirname'] . DIRECTORY_SEPARATOR . $fileParts['filename'] . " ($i)." . $fileParts['extension'];
-
-      if(!file_exists($tempName)) {
-         return $tempName;
-      }
-   }
-
-   return null;
-}
-
-
-
-/**
  * Check for PHP cURL and that both the reports and uploads directories are writable.
  *
  * @return void
@@ -118,11 +51,77 @@ function validate_csrf_token() {
 
 
 /**
+ * Check if all needles exist in haystack.
+ *
+ * @param   array $needles    Array of values to search for.
+ * @param   array $haystack   Array of values to search in.
+ * @return  bool
+ */
+function in_array_all($needles, $haystack) {
+   return empty(array_diff($needles, $haystack));
+}
+
+
+/**
+ * Remove oldest files from directory.
+ *
+ * @param   string   $filePattern   File name pattern to search for.
+ * @param   integer  $maxFileCount  Max number of files to keep.
+ * @return  void
+ */
+function remove_old_files($filePattern, $maxFileCount) {
+   if($maxFileCount < 1) {
+      $maxFileCount = 1;
+   }
+
+   $files = glob($filePattern);
+   $extraFiles = count($files) - $maxFileCount;
+
+   if($extraFiles > 0) {
+      // Sort by last modified ascending.
+      usort($files, function($x, $y) {
+         return filemtime($x) > filemtime($y);
+      });
+
+      for($i = 0; $i < $extraFiles; $i++) {
+         unlink($files[$i]);
+      }
+   }
+}
+
+
+/**
+ * Return a valid file name.
+ *
+ * @param   string      $fileName Desired file name.
+ * @return  string|null A valid file name.
+ */
+function find_file_name($fileName) {
+   if(!file_exists($fileName)) {
+      return $fileName;
+   }
+
+   $fileParts = pathinfo($fileName);
+   $fileCount = count(glob($fileParts['dirname'] . DIRECTORY_SEPARATOR . "*"));
+
+   for($i = 1; $i <= $fileCount; $i++) {
+      $tempName = $fileParts['dirname'] . DIRECTORY_SEPARATOR . $fileParts['filename'] . " ($i)." . $fileParts['extension'];
+
+      if(!file_exists($tempName)) {
+         return $tempName;
+      }
+   }
+
+   return null;
+}
+
+
+/**
  * Process uploaded file.
  *
  * Checks for upload file, file size, and file name.
  *
- * @return string
+ * @return string Full file path of the uploaded file.
  */
 function process_uploaded_file() {
    // Check upload and move it to folder.
@@ -146,4 +145,32 @@ function process_uploaded_file() {
       array_push($_SESSION['output'], 'Could not find uploaded file.');
       go_home();
    }
+}
+
+
+/**
+ * Opens up a file to create a report. The file name is based on the submitted file.
+ *
+ * @param   string   $uploadFullPath Full path of the uploaded file.
+ * @return  resource File pointer of opened report file.
+ */
+function open_report_file($uploadFullPath) {
+   $fileParts = pathinfo($uploadFullPath);
+   $fileName = $fileParts['filename'];
+
+   // Open a file for the upload report.
+   if(!($reportFullPath = find_file_name('reports'.DIRECTORY_SEPARATOR.basename($fileName).' report.csv'))) {
+      array_push($_SESSION['output'], 'There was an error saving the report file.');
+      go_home();
+   }
+
+   if(!$reportFp = fopen($reportFullPath, 'w')) {
+      array_push($_SESSION['output'], 'Cannot write to the reports folder.');
+      go_home();
+   }
+
+   // Save report path to add link on index page.
+   $_SESSION['reportPath'] = $reportFullPath;
+
+   return $reportFp;
 }

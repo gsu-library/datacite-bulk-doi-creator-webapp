@@ -34,6 +34,8 @@ if(!$uploadFp = fopen($uploadFullPath, 'r')) {
    go_home();
 }
 
+
+//TODO: headers function?
 // Save file headers.
 if(($headers = fgetcsv($uploadFp)) === false) {
    array_push($_SESSION['output'], 'No data was found in the uploaded file.');
@@ -52,22 +54,17 @@ if(!in_array_all($requiredHeaders, $headers)) {
 }
 
 // Find how many creator headers are present.
-$creatorHeaders = [];
-$i = 1;
+// TODO: does this go somewhere else?
+$creatorHeaders = preg_grep('/^creator\d+$/', $headers);
 
-while(in_array('creator'.$i, $headers)) {
-   array_push($creatorHeaders, 'creator'.$i++);
-}
+/*************************************************************************************/
 
-$fileData = [];
+// Open file for reporting.
+$reportFp = open_report_file($uploadFullPath);
 
-// Retrieve the rest of the file.
-// TODO: At some point process a row at a time instead of saving all records to array.
-while(($row = fgetcsv($uploadFp)) !== false) {
-   $fileData[] = array_combine($headers, $row);
-}
+// Add headers to upload report file.
+fputcsv($reportFp, ['doi_suffix', 'doi_url', 'status', 'error']);
 
-fclose($uploadFp);
 
 // Setup cURL.
 $ch = curl_init();
@@ -85,29 +82,9 @@ curl_setopt_array($ch, [
 ]);
 
 
-$fileParts = pathinfo($uploadFullPath);
-$fileName = $fileParts['filename'];
-
-// Open a file for the upload report.
-if(!($reportFullFilePath = find_file_name('reports'.DIRECTORY_SEPARATOR.basename($fileName).' report.csv'))) {
-   array_push($_SESSION['output'], 'There was an error saving the report file.');
-   go_home();
-}
-
-if(!$reportFp = fopen($reportFullFilePath, 'w')) {
-   array_push($_SESSION['output'], 'Cannot write to the reports folder.');
-   go_home();
-}
-
-// Save report path to add link on index page.
-$_SESSION['reportPath'] = $reportFullFilePath;
-
-// Add headers to upload report file.
-fputcsv($reportFp, ['doi_suffix', 'doi_url', 'status', 'error']);
-
-// Process file data and create report.
-$proccessedCsv = [];
-foreach($fileData as $row) {
+// Process the rest of the upload.
+while(($row = fgetcsv($uploadFp)) !== false) {
+   $row = array_combine($headers, $row);
    $doi = CONFIG['doiPrefix'].'/'.$row['doi_suffix'];
    $creators = [];
 
@@ -168,7 +145,9 @@ foreach($fileData as $row) {
    }
 }
 
+
+curl_close($ch);
+fclose($uploadFp);
 fclose($reportFp);
 remove_old_files('reports'.DIRECTORY_SEPARATOR.'*.csv', CONFIG['maxReportFiles']);
-curl_close($ch);
 go_home();
