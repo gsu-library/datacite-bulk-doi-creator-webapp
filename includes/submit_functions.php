@@ -181,6 +181,7 @@ function process_upload_headers($uploadFp) {
    }, $headers);
 
    // Make sure CSV file has all required headers.
+   // TODO: specify missing headers
    if(!in_array_all($requiredHeaders, $headers)) {
       array_push($_SESSION['output'], 'The uploaded CSV file is missing required headers.');
       go_home();
