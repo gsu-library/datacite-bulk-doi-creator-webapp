@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * Configuration.
+ *
+ * @var array  [url, doiPrefix, username, password, maxSubmittedFiles, maxReportedFiles, maxUploadSize]
+ */
 const CONFIG = [
    'url' => 'https://api.datacite.org/dois',
    'doiPrefix' => '',

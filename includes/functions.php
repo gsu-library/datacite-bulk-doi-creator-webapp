@@ -1,18 +1,36 @@
 <?php
-// Go back to the index page.
+/**
+ * Redirects browser to the index page.
+ *
+ * // TODO: check to see if this needs to be loaded on any pages or just on includes.
+ *
+ * @return void
+ */
 function go_home() {
    header('location: .');
    exit;
 }
 
 
-// Loads the configuration file.
+/**
+ * Loads the configuration file.
+ *
+ * Configuration will be in a CONFIG variable.
+ *
+ * @return void
+ */
 function load_config_file() {
    require_once('config'.DIRECTORY_SEPARATOR.'config.php');
 }
 
 
-// Lists out files in either the reports or uploads directories.
+/**
+ * Lists out files in either the reports or uploads directories.
+ *
+ * @param string  $type    Folder to parse.
+ * @param integer $amount  Number of results to return.
+ * @return void
+ */
 function list_files($type, $amount) {
    $files = glob($type.DIRECTORY_SEPARATOR.'*.csv');
 
@@ -38,7 +56,12 @@ function list_files($type, $amount) {
 }
 
 
-// Prints the navigation, marking the current page as active.
+/**
+ * Prints the navigation, marking the current page as active.
+ *
+ * @param string $currentPage Filename of the current page.
+ * @return void
+ */
 function print_header($currentPage) {
    echo '
    <header class="container my-3">
@@ -89,7 +112,11 @@ function print_header($currentPage) {
 }
 
 
-// Prints the footer.
+/**
+ * Prints the footer.
+ *
+ * @return void
+ */
 function print_footer() {
    echo '
    <footer class="container my-3">
