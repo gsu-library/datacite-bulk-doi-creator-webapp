@@ -32,8 +32,11 @@ fputcsv($reportFp, ['doi_suffix', 'doi_url', 'status', 'error']);
 // Setup cURL.
 $ch = curl_init();
 
+if(CONFIG['devMode']) {
+   curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+}
+
 curl_setopt_array($ch, [
-   // CURLOPT_SSL_VERIFYPEER => false, // for dev only
    CURLOPT_URL => CONFIG['url'],
    CURLOPT_POST => true,
    CURLOPT_RETURNTRANSFER => true,
