@@ -1,4 +1,5 @@
 <?php
+// TODO: should require config loaded?
 /**
  * Check for PHP cURL and that both the reports and uploads directories are writable.
  *
@@ -163,8 +164,6 @@ function process_upload_headers($uploadFp) {
       'publisher',
       'source_url',
       'creator1',
-      'creator1_type', // TODO: will depend on orchid id
-                     // don't require and assume personal?
       'creator1_given',
       'creator1_family',
    ];
@@ -216,4 +215,115 @@ function open_report_file($uploadFullPath) {
    $_SESSION['reportPath'] = $reportFullPath;
 
    return $reportFp;
+}
+
+
+/**
+ * Creates and returns an array of creators based on the passed row.
+ *
+ * @param   array $creatorHeaders An array of the number of creator headers found in the submitted file.
+ * @param   array $row The current row of data being processed.
+ * @return  array A formatted array of creators for the row.
+ */
+function get_creators($creatorHeaders, $row) {
+   // do we process multiple orcids?
+   $creators = [];
+   $tokenFile = 'config/orcid_token.json';
+
+   // if $row orcid exists process that
+   // find just the orcid? what if multiple authors?
+   // orcid regex: (\d{4}-){3}\d{3}(\d|X)
+   if(!empty($row['orcid'])) {
+      if(!file_exists($tokenFile)) {
+         if(!is_writable('config')) {
+            array_push($_SESSION['output'], 'The config directory is not writable.');
+            return [];
+         }
+
+         $tokenInfo = get_orcid_token($tokenFile);
+      }
+      else {
+         $tokenInfo = json_decode(file_get_contents($tokenFile), true);
+      }
+
+      // if token query oid
+
+      // query_oid();
+
+      // if token is bad, get token
+
+      // if no token, get token
+
+      // query oid
+
+      // at this point if there are any problems push on output array oid has issues
+   }
+   else {
+      // Process multiple creators.
+      foreach($creatorHeaders as $x) {
+         if(!empty($row[$x])) {
+            // Make nameType optional.
+            if(empty($row[$x.'_type']) || $row[$x.'_type'] !== 'Organizational') {
+               $nameType = 'Personal';
+            }
+            else {
+               $nameType = 'Organizational';
+            }
+
+            array_push($creators, [
+               'name' => $row[$x],
+               'nameType' => $nameType,
+               'givenName' => $row[$x.'_given'],
+               'familyName' => $row[$x.'_family']
+            ]);
+         }
+      }
+   }
+
+   return $creators;
+}
+
+
+/**
+ * Retrieves a public read token from Orcid, writes it to file, and returns an array of related data.
+ *
+ * @param   string   $tokenFile Location of the Orcid token file.
+ * @return  array    The Orcid access token and related information.
+ */
+function get_orcid_token($tokenFile) {
+   $ch = curl_init();
+   $postFields = [
+      'client_id' => CONFIG['orcidClientId'],
+      'client_secret' => CONFIG['orcidSecret'],
+      'grant_type' => 'client_credentials',
+      'scope' => '/read-public'
+   ];
+
+   if(CONFIG['devMode']) {
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+   }
+
+   curl_setopt_array($ch, [
+      CURLOPT_URL => CONFIG['orcidTokenUrl'],
+      CURLOPT_POST => true,
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_HTTPHEADER => [
+         'content-type: application/x-www-form-urlencoded'
+      ],
+      CURLOPT_POSTFIELDS => http_build_query($postFields),
+      CURLINFO_HEADER_OUT => true
+   ]);
+
+   $result = json_decode(curl_exec($ch), true);
+
+   //TODO: check for error, if error push to output and return []
+
+   unset($result['orcid']);
+   $result['expires_on'] = $result['expires_in'] + time();
+   curl_close($ch);
+
+   // Save contents to file as JSON.
+   file_put_contents($tokenFile, json_encode($result, JSON_PRETTY_PRINT));
+
+   return $result;
 }
