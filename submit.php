@@ -9,7 +9,7 @@ $_SESSION['output'] = [];
 
 
 check_capabilities();
-validate_csrf_token();
+if(!CONFIG['devMode']) { validate_csrf_token(); }
 $uploadFullPath = process_uploaded_file();
 
 // Open the uploaded file.
@@ -52,19 +52,7 @@ curl_setopt_array($ch, [
 while(($row = fgetcsv($uploadFp)) !== false) {
    $row = array_combine($headers, $row);
    $doi = CONFIG['doiPrefix'].'/'.$row['doi_suffix'];
-   $creators = [];
-
-   // Process multiple creators.
-   foreach($creatorHeaders as $x) {
-      if(!empty($row[$x])) {
-         array_push($creators, [
-            'name' => $row[$x],
-            'nameType' => $row[$x.'_type'],
-            'givenName' => $row[$x.'_given'],
-            'familyName' => $row[$x.'_family']
-         ]);
-      }
-   }
+   $creators = get_creators($creatorHeaders, $row);
 
    $submission = [
       'data' => [
@@ -116,4 +104,5 @@ curl_close($ch);
 fclose($uploadFp);
 fclose($reportFp);
 remove_old_files('reports'.DIRECTORY_SEPARATOR.'*.csv', CONFIG['maxReportFiles']);
-go_home();
+if(!CONFIG['devMode']) { go_home(); }
+else { echo '<a href=".">Go Back</a>'; }
