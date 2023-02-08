@@ -16,6 +16,8 @@ Put the repository files in a folder that is within Apache's webroot.
 ### Configuration
 Rename config/config.sample.php to config/config.php and fill in your DOI prefix, username (repository ID), and password. If wanting to test the script out with the test DataCite API replace the URL with the test API URL (https://api.test.datacite.org/dois) and credentials. There are other configuration options that can be adjusted if wanted.
 
+TODO: add info on orcid integration
+
 **It is important that the config folder and its contents are not readable from a web browser. If not using Apache, the config/.htaccess file should be replaced with something denying web access to the contents of the folder.**
 
 PHP will also need read/write access to both the reports and uploads folders. Make sure owner/group permissions are set accordingly.
@@ -35,7 +37,7 @@ description - abstract description
 publisher - publisher  
 source_url - URL reference to resource  
 creator{n} - full creator name (header example: creator1, creator2, etc.)  
-creator{n}_type - Personal or Organizational  
+creator{n}_type - Personal or Organizational (not required, defaults to Personal)  
 creator{n}_given - creator given name  
 creator{n}_family - creator family name  
 
