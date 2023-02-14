@@ -81,26 +81,24 @@ while(($row = fgetcsv($uploadFp)) !== false) {
       ]
    ];
 
-   echo '<pre>'.print_r($submission, true).'</pre>';
 
    // Submit data.
-   // $data = json_encode($submission, JSON_INVALID_UTF8_IGNORE);
-   // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-   // $result = json_decode(curl_exec($ch), true);
-   // $error = $result['errors'][0]['title'] ?? '';
-   // fputcsv($reportFp, [$row['doi_suffix'], 'https://doi.org/'.$doi, curl_getinfo($ch, CURLINFO_HTTP_CODE), $error]);
+   $data = json_encode($submission, JSON_INVALID_UTF8_IGNORE);
+   curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+   $result = json_decode(curl_exec($ch), true);
+   $error = $result['errors'][0]['title'] ?? '';
+   fputcsv($reportFp, [$row['doi_suffix'], 'https://doi.org/'.$doi, curl_getinfo($ch, CURLINFO_HTTP_CODE), $error]);
 
-   // if($error) {
-   //    $error = ', '.lcfirst($error);
-   // }
+   if($error) {
+      $error = ', '.lcfirst($error);
+   }
 
-   // array_push($_SESSION['output'], '- submitted doi suffix '.$row['doi_suffix'].' with status of '.curl_getinfo($ch, CURLINFO_HTTP_CODE).$error);
+   array_push($_SESSION['output'], '- submitted doi suffix '.$row['doi_suffix'].' with status of '.curl_getinfo($ch, CURLINFO_HTTP_CODE).$error);
 
-   // if($error = curl_error($ch)) {
-   //    array_push($_SESSION['output'], $error);
-   // }
+   if($error = curl_error($ch)) {
+      array_push($_SESSION['output'], $error);
+   }
 }
-
 
 curl_close($ch);
 fclose($uploadFp);
