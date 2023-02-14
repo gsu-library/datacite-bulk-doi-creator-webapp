@@ -52,18 +52,6 @@ function validate_csrf_token() {
 
 
 /**
- * Check if all needles exist in haystack.
- *
- * @param   array $needles    Array of values to search for.
- * @param   array $haystack   Array of values to search in.
- * @return  bool
- */
-function in_array_all($needles, $haystack) {
-   return empty(array_diff($needles, $haystack));
-}
-
-
-/**
  * Remove oldest files from directory.
  *
  * @param   string   $filePattern   File name pattern to search for.
@@ -180,9 +168,8 @@ function process_upload_headers($uploadFp) {
    }, $headers);
 
    // Make sure CSV file has all required headers.
-   // TODO: specify missing headers
-   if(!in_array_all($requiredHeaders, $headers)) {
-      array_push($_SESSION['output'], 'The uploaded CSV file is missing required headers.');
+   if(!empty($missingHeaders = array_diff($requiredHeaders, $headers))) {
+      array_push($_SESSION['output'], 'The uploaded CSV file is missing the required headers: ' . implode(', ', $missingHeaders));
       go_home();
    }
 
