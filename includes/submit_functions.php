@@ -244,7 +244,10 @@ function get_creators($creatorHeaders, $row) {
       }
       else {
          $tokenInfo = json_decode(file_get_contents($tokenFile), true);
+         // if token expired get_orcid_token($tokenFile);
       }
+
+      $creators = get_orcid_name($row['orcid'], $tokenInfo['access_token']);
 
       // if token query oid
 
@@ -310,8 +313,7 @@ function get_orcid_token($tokenFile) {
       CURLOPT_HTTPHEADER => [
          'content-type: application/x-www-form-urlencoded'
       ],
-      CURLOPT_POSTFIELDS => http_build_query($postFields),
-      CURLINFO_HEADER_OUT => true
+      CURLOPT_POSTFIELDS => http_build_query($postFields)
    ]);
 
    $result = json_decode(curl_exec($ch), true);
@@ -326,4 +328,36 @@ function get_orcid_token($tokenFile) {
    file_put_contents($tokenFile, json_encode($result, JSON_PRETTY_PRINT));
 
    return $result;
+}
+
+
+function get_orcid_name($orcid, $token) {
+   preg_match('/(\d{4}-){3}\d{3}(\d|X)/', $orcid, $matches);
+   $apiUrl = CONFIG['orcidApiUrl'].'v3.0/'.$matches[0].'/personal-details';
+   $creator = [];
+   $ch = curl_init();
+
+   if(CONFIG['devMode']) {
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+   }
+
+   curl_setopt_array($ch, [
+      CURLOPT_URL => $apiUrl,
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_HTTPHEADER => [
+         'content-type: application/orcid+json',
+         'Authorization: Bearer '.$token,
+      ]
+   ]);
+
+   $result = json_decode(curl_exec($ch), true);
+
+   array_push($creator, [
+      'name' => $result['name']['family-name']['value'].', '.$result['name']['given-names']['value'],
+      'nameType' => 'Personal',
+      'givenName' => $result['name']['given-names']['value'],
+      'familyName' => $result['name']['family-name']['value']
+   ]);
+
+   return $creator;
 }
