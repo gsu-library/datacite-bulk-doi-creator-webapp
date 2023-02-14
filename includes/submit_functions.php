@@ -1,5 +1,17 @@
 <?php
-// TODO: should require config loaded?
+/**
+ * Redirects browser to the index page.
+ *
+ * // TODO: move go_home calls to submit.php based on function returns.
+ *
+ * @return void
+ */
+function go_home() {
+   header('location: .');
+   exit;
+}
+
+
 /**
  * Check for PHP cURL and that both the reports and uploads directories are writable.
  *
