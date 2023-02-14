@@ -213,40 +213,34 @@ function open_report_file($uploadFullPath) {
  * @return  array A formatted array of creators for the row.
  */
 function get_creators($creatorHeaders, $row) {
-   // do we process multiple orcids?
    $creators = [];
    $tokenFile = 'config/orcid_token.json';
 
-   // if $row orcid exists process that
-   // find just the orcid? what if multiple authors?
-   // orcid regex: (\d{4}-){3}\d{3}(\d|X)
+   // If ORCID header exists process that instead of creator{n}.
    if(!empty($row['orcid'])) {
       if(!file_exists($tokenFile)) {
          if(!is_writable('config')) {
             array_push($_SESSION['output'], 'The config directory is not writable.');
-            return [];
+            return $creators;
          }
 
-         $tokenInfo = get_orcid_token($tokenFile);
+         if(!($tokenInfo = get_orcid_token())) {
+            return $creators;
+         }
       }
       else {
          $tokenInfo = json_decode(file_get_contents($tokenFile), true);
-         // if token expired get_orcid_token($tokenFile);
+
+         // If token is expired get a new one.
+         if($tokenInfo['expires_on'] <= time()) {
+            if(!($tokenInfo = get_orcid_token())) {
+               return $creators;
+            }
+         }
       }
 
-      $creators = get_orcid_name($row['orcid'], $tokenInfo['access_token']);
-
-      // if token query oid
-
-      // query_oid();
-
-      // if token is bad, get token
-
-      // if no token, get token
-
-      // query oid
-
-      // at this point if there are any problems push on output array oid has issues
+      preg_match('/(\d{4}-){3}\d{3}(\d|X)/', $row['orcid'], $matches);
+      $creators = get_orcid_name($matches[0], $tokenInfo['access_token']);
    }
    else {
       // Process multiple creators.
@@ -275,12 +269,12 @@ function get_creators($creatorHeaders, $row) {
 
 
 /**
- * Retrieves a public read token from Orcid, writes it to file, and returns an array of related data.
+ * Retrieves a public read token from ORCID, writes it to file, and returns an array of related data.
  *
- * @param   string   $tokenFile Location of the Orcid token file.
- * @return  array    The Orcid access token and related information.
+ * @return array|null The ORCID access token and related information.
  */
-function get_orcid_token($tokenFile) {
+function get_orcid_token() {
+   $tokenFile = 'config/orcid_token.json';
    $ch = curl_init();
    $postFields = [
       'client_id' => CONFIG['orcidClientId'],
@@ -305,12 +299,15 @@ function get_orcid_token($tokenFile) {
 
    $result = json_decode(curl_exec($ch), true);
 
-   //TODO: check for error, if error push to output and return []
+   // If no access token is provided.
+   if(empty($result['access_token'])) {
+      array_push($_SESSION['output'], 'There was an error requesting an access token from ORCID.');
+      return null;
+   }
 
    unset($result['orcid']);
    $result['expires_on'] = $result['expires_in'] + time();
    curl_close($ch);
-
    // Save contents to file as JSON.
    file_put_contents($tokenFile, json_encode($result, JSON_PRETTY_PRINT));
 
@@ -318,9 +315,15 @@ function get_orcid_token($tokenFile) {
 }
 
 
+/**
+ * Returns a creator array from the given ORCID ID and access token.
+ *
+ * @param   string   $orcid The ORICD ID to lookup.
+ * @param   string   $token The public read access token to use.
+ * @return  array    A creator array.
+ */
 function get_orcid_name($orcid, $token) {
-   preg_match('/(\d{4}-){3}\d{3}(\d|X)/', $orcid, $matches);
-   $apiUrl = CONFIG['orcidApiUrl'].'v3.0/'.$matches[0].'/personal-details';
+   $apiUrl = CONFIG['orcidApiUrl'].'v3.0/'.$orcid.'/personal-details';
    $creator = [];
    $ch = curl_init();
 
@@ -338,13 +341,24 @@ function get_orcid_name($orcid, $token) {
    ]);
 
    $result = json_decode(curl_exec($ch), true);
+   $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-   array_push($creator, [
-      'name' => $result['name']['family-name']['value'].', '.$result['name']['given-names']['value'],
-      'nameType' => 'Personal',
-      'givenName' => $result['name']['given-names']['value'],
-      'familyName' => $result['name']['family-name']['value']
-   ]);
+   if($code === 200) {
+      array_push($creator, [
+         'name' => $result['name']['family-name']['value'].', '.$result['name']['given-names']['value'],
+         'nameType' => 'Personal',
+         'givenName' => $result['name']['given-names']['value'],
+         'familyName' => $result['name']['family-name']['value']
+      ]);
+   }
+   else if($code === 404) {
+      array_push($_SESSION['output'], 'ORCID ID '.$orcid.' not found.');
+   }
+   else {
+      array_push($_SESSION['output'], 'There was an error querying ORCID. Please try again.');
+      // Just in case it is a token issue, grab a new token for the next submission.
+      get_orcid_token();
+   }
 
    return $creator;
 }
