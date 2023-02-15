@@ -231,6 +231,7 @@ function get_creators($creatorHeaders, $row) {
    // If ORCID header exists process that instead of creator{n}.
    if(!empty($row['orcid'])) {
       if(!file_exists($tokenFile)) {
+         // Can we write to the config folder?
          if(!is_writable('config')) {
             array_push($_SESSION['output'], 'The config directory is not writable.');
             return $creators;
@@ -294,6 +295,12 @@ function get_orcid_token() {
       'grant_type' => 'client_credentials',
       'scope' => '/read-public'
    ];
+
+   // Are ORCID credentials configured?
+   if(empty(CONFIG['orcidClientId']) || empty(CONFIG['orcidSecret'])) {
+      array_push($_SESSION['output'], 'ORCID credentials are not configured.');
+      return null;
+   }
 
    if(CONFIG['devMode']) {
       curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
