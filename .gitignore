@@ -1,6 +1,7 @@
 node_modules/
 reports/
 uploads/
+config/*
+!config/config.sample.php
 .htaccess
 .htpasswd
-config.php

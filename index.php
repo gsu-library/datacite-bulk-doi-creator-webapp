@@ -46,6 +46,11 @@ set_csrf_token();
          <div class="col-lg-5 my-3">
             <h2><span>Configuration</span></h2>
             <ul class="list-group mb-3">
+               <?php
+                  if(CONFIG['devMode']) {
+                     echo '<li class="list-group-item text-danger"><strong>Dev Mode Enabled</strong></li>';
+                  }
+               ?>
                <li class="list-group-item">
                   DOI Prefix: <?= CONFIG['doiPrefix']; ?>
                </li>

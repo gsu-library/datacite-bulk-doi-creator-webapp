@@ -1,5 +1,18 @@
 <?php
 /**
+ * Redirects browser to the index page.
+ *
+ * // TODO: move go_home calls to submit.php based on function returns.
+ *
+ * @return void
+ */
+function go_home() {
+   header('location: .');
+   exit;
+}
+
+
+/**
  * Check for PHP cURL and that both the reports and uploads directories are writable.
  *
  * @return void
@@ -47,18 +60,6 @@ function validate_csrf_token() {
          unset($_SESSION['csrfToken']);
       }
    }
-}
-
-
-/**
- * Check if all needles exist in haystack.
- *
- * @param   array $needles    Array of values to search for.
- * @param   array $haystack   Array of values to search in.
- * @return  bool
- */
-function in_array_all($needles, $haystack) {
-   return empty(array_diff($needles, $haystack));
 }
 
 
@@ -163,8 +164,6 @@ function process_upload_headers($uploadFp) {
       'publisher',
       'source_url',
       'creator1',
-      'creator1_type', // TODO: will depend on orchid id
-                     // don't require and assume personal?
       'creator1_given',
       'creator1_family',
    ];
@@ -181,9 +180,8 @@ function process_upload_headers($uploadFp) {
    }, $headers);
 
    // Make sure CSV file has all required headers.
-   // TODO: specify missing headers
-   if(!in_array_all($requiredHeaders, $headers)) {
-      array_push($_SESSION['output'], 'The uploaded CSV file is missing required headers.');
+   if(!empty($missingHeaders = array_diff($requiredHeaders, $headers))) {
+      array_push($_SESSION['output'], 'The uploaded CSV file is missing the required headers: ' . implode(', ', $missingHeaders));
       go_home();
    }
 
@@ -216,4 +214,170 @@ function open_report_file($uploadFullPath) {
    $_SESSION['reportPath'] = $reportFullPath;
 
    return $reportFp;
+}
+
+
+/**
+ * Creates and returns an array of creators based on the passed row.
+ *
+ * @param   array $creatorHeaders An array of the number of creator headers found in the submitted file.
+ * @param   array $row The current row of data being processed.
+ * @return  array A formatted array of creators for the row.
+ */
+function get_creators($creatorHeaders, $row) {
+   $creators = [];
+   $tokenFile = 'config/orcid_token.json';
+
+   // If ORCID header exists process that instead of creator{n}.
+   if(!empty($row['orcid'])) {
+      if(!file_exists($tokenFile)) {
+         // Can we write to the config folder?
+         if(!is_writable('config')) {
+            array_push($_SESSION['output'], 'The config directory is not writable.');
+            return $creators;
+         }
+
+         if(!($tokenInfo = get_orcid_token())) {
+            return $creators;
+         }
+      }
+      else {
+         $tokenInfo = json_decode(file_get_contents($tokenFile), true);
+
+         // If token is expired get a new one.
+         if($tokenInfo['expires_on'] <= time()) {
+            if(!($tokenInfo = get_orcid_token())) {
+               return $creators;
+            }
+         }
+      }
+
+      preg_match('/(\d{4}-){3}\d{3}(\d|X)/', $row['orcid'], $matches);
+      $creators = get_orcid_name($matches[0], $tokenInfo['access_token']);
+   }
+   else {
+      // Process multiple creators.
+      foreach($creatorHeaders as $x) {
+         if(!empty($row[$x])) {
+            // Make nameType optional.
+            if(empty($row[$x.'_type']) || $row[$x.'_type'] !== 'Organizational') {
+               $nameType = 'Personal';
+            }
+            else {
+               $nameType = 'Organizational';
+            }
+
+            array_push($creators, [
+               'name' => $row[$x],
+               'nameType' => $nameType,
+               'givenName' => $row[$x.'_given'],
+               'familyName' => $row[$x.'_family']
+            ]);
+         }
+      }
+   }
+
+   return $creators;
+}
+
+
+/**
+ * Retrieves a public read token from ORCID, writes it to file, and returns an array of related data.
+ *
+ * @return array|null The ORCID access token and related information.
+ */
+function get_orcid_token() {
+   $tokenFile = 'config/orcid_token.json';
+   $ch = curl_init();
+   $postFields = [
+      'client_id' => CONFIG['orcidClientId'],
+      'client_secret' => CONFIG['orcidSecret'],
+      'grant_type' => 'client_credentials',
+      'scope' => '/read-public'
+   ];
+
+   // Are ORCID credentials configured?
+   if(empty(CONFIG['orcidClientId']) || empty(CONFIG['orcidSecret'])) {
+      array_push($_SESSION['output'], 'ORCID credentials are not configured.');
+      return null;
+   }
+
+   if(CONFIG['devMode']) {
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+   }
+
+   curl_setopt_array($ch, [
+      CURLOPT_URL => CONFIG['orcidTokenUrl'],
+      CURLOPT_POST => true,
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_HTTPHEADER => [
+         'content-type: application/x-www-form-urlencoded'
+      ],
+      CURLOPT_POSTFIELDS => http_build_query($postFields)
+   ]);
+
+   $result = json_decode(curl_exec($ch), true);
+
+   // If no access token is provided.
+   if(empty($result['access_token'])) {
+      array_push($_SESSION['output'], 'There was an error requesting an access token from ORCID.');
+      return null;
+   }
+
+   unset($result['orcid']);
+   $result['expires_on'] = $result['expires_in'] + time();
+   curl_close($ch);
+   // Save contents to file as JSON.
+   file_put_contents($tokenFile, json_encode($result, JSON_PRETTY_PRINT));
+
+   return $result;
+}
+
+
+/**
+ * Returns a creator array from the given ORCID ID and access token.
+ *
+ * @param   string   $orcid The ORICD ID to lookup.
+ * @param   string   $token The public read access token to use.
+ * @return  array    A creator array.
+ */
+function get_orcid_name($orcid, $token) {
+   $apiUrl = CONFIG['orcidApiUrl'].'v3.0/'.$orcid.'/personal-details';
+   $creator = [];
+   $ch = curl_init();
+
+   if(CONFIG['devMode']) {
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+   }
+
+   curl_setopt_array($ch, [
+      CURLOPT_URL => $apiUrl,
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_HTTPHEADER => [
+         'content-type: application/orcid+json',
+         'Authorization: Bearer '.$token,
+      ]
+   ]);
+
+   $result = json_decode(curl_exec($ch), true);
+   $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+   if($code === 200) {
+      array_push($creator, [
+         'name' => $result['name']['family-name']['value'].', '.$result['name']['given-names']['value'],
+         'nameType' => 'Personal',
+         'givenName' => $result['name']['given-names']['value'],
+         'familyName' => $result['name']['family-name']['value']
+      ]);
+   }
+   else if($code === 404) {
+      array_push($_SESSION['output'], 'ORCID ID '.$orcid.' not found.');
+   }
+   else {
+      array_push($_SESSION['output'], 'There was an error querying ORCID. Please try again.');
+      // Just in case it is a token issue, grab a new token for the next submission.
+      get_orcid_token();
+   }
+
+   return $creator;
 }

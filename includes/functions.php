@@ -1,18 +1,5 @@
 <?php
 /**
- * Redirects browser to the index page.
- *
- * // TODO: check to see if this needs to be loaded on any pages or just on includes.
- *
- * @return void
- */
-function go_home() {
-   header('location: .');
-   exit;
-}
-
-
-/**
  * Loads the configuration file.
  *
  * Configuration will be in a CONFIG variable.
