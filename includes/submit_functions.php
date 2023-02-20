@@ -367,7 +367,12 @@ function get_orcid_name($orcid, $token) {
          'name' => $result['name']['family-name']['value'].', '.$result['name']['given-names']['value'],
          'nameType' => 'Personal',
          'givenName' => $result['name']['given-names']['value'],
-         'familyName' => $result['name']['family-name']['value']
+         'familyName' => $result['name']['family-name']['value'],
+         'nameIdentifiers' => [
+            'schemeUri' => 'https://orcid.org',
+            'nameIdentifier' => 'https://orcid.org/'.$orcid,
+            'nameIdentifierScheme' => 'ORCID'
+         ]
       ]);
    }
    else if($code === 404) {
