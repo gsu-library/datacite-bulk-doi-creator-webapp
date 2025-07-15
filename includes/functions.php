@@ -23,7 +23,7 @@ function list_files($type, $amount) {
 
    // Sort by last modified descending.
    usort($files, function($x, $y) {
-      return filemtime($x) < filemtime($y);
+      return filemtime($y) <=> filemtime($x);
    });
 
    if(empty($files) || $amount <= 0) {

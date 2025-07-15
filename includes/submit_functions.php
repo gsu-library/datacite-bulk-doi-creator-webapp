@@ -81,7 +81,7 @@ function remove_old_files($filePattern, $maxFileCount) {
    if($extraFiles > 0) {
       // Sort by last modified ascending.
       usort($files, function($x, $y) {
-         return filemtime($x) > filemtime($y);
+         return filemtime($x) <=> filemtime($y);
       });
 
       for($i = 0; $i < $extraFiles; $i++) {
@@ -156,6 +156,7 @@ function process_uploaded_file() {
 function process_upload_headers($uploadFp) {
    // Headers required to process the upload file.
    $requiredHeaders = [
+      'doi_prefix',
       'doi_suffix',
       'title',
       'year',
@@ -302,7 +303,7 @@ function get_orcid_token() {
       return null;
    }
 
-   if(CONFIG['devMode']) {
+   if(CONFIG['devMode'] ?? false) {
       curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
    }
 
@@ -346,7 +347,7 @@ function get_orcid_name($orcid, $token) {
    $creator = [];
    $ch = curl_init();
 
-   if(CONFIG['devMode']) {
+   if(CONFIG['devMode'] ?? false) {
       curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
    }
 

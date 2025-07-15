@@ -2,12 +2,11 @@
 /**
  * Configuration.
  *
- * @var array  [url, doiPrefix, username, password, maxSubmittedFiles, maxReportedFiles,
+ * @var array  [url, username, password, maxSubmittedFiles, maxReportedFiles,
  *              maxUploadSize, orcidTokenUrl, orcidApiUrl, orcidClientId, orcidSecret]
  */
 const CONFIG = [
    'url' => 'https://api.datacite.org/dois',
-   'doiPrefix' => '',
    'username' => '',
    'password' => '',
    'maxSubmittedFiles' => 20,

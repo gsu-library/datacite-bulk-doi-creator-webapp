@@ -9,7 +9,7 @@ $_SESSION['output'] = [];
 
 
 check_capabilities();
-if(!CONFIG['devMode']) { validate_csrf_token(); }
+if(!(CONFIG['devMode']) ?? false) { validate_csrf_token(); }
 $uploadFullPath = process_uploaded_file();
 
 // Open the uploaded file.
@@ -32,7 +32,7 @@ fputcsv($reportFp, ['doi_suffix', 'doi_url', 'status', 'error']);
 // Setup cURL.
 $ch = curl_init();
 
-if(CONFIG['devMode']) {
+if(CONFIG['devMode'] ?? false) {
    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 }
 
@@ -51,7 +51,7 @@ curl_setopt_array($ch, [
 // Process the rest of the upload.
 while(($row = fgetcsv($uploadFp)) !== false) {
    $row = array_combine($headers, $row);
-   $doi = CONFIG['doiPrefix'].'/'.$row['doi_suffix'];
+   $doi = $row['doi_prefix'].'/'.$row['doi_suffix'];
    $creators = get_creators($creatorHeaders, $row);
 
    $submission = [
@@ -59,8 +59,8 @@ while(($row = fgetcsv($uploadFp)) !== false) {
          'id' => $doi,
          'type' => 'dois',
          'attributes' => [
+            'prefix' => $row['doi_prefix'],
             'event' => 'publish',
-            'doi' => $doi,
             'creators' => $creators,
             'titles' => [
                'title' => $row['title']
@@ -81,19 +81,23 @@ while(($row = fgetcsv($uploadFp)) !== false) {
       ]
    ];
 
+   if(!empty($row['doi_suffix'])) {
+      $submission['data']['attributes']['doi'] = $doi;
+   }
 
    // Submit data.
    $data = json_encode($submission, JSON_INVALID_UTF8_IGNORE);
    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
    $result = json_decode(curl_exec($ch), true);
    $error = $result['errors'][0]['title'] ?? '';
-   fputcsv($reportFp, [$row['doi_suffix'], 'https://doi.org/'.$doi, curl_getinfo($ch, CURLINFO_HTTP_CODE), $error]);
+   $publishedDoi = $result['data']['attributes']['doi'] ?? $doi;
+   fputcsv($reportFp, [$row['doi_suffix'], 'https://doi.org/'.$publishedDoi, curl_getinfo($ch, CURLINFO_HTTP_CODE), $error]);
 
    if($error) {
       $error = ', '.lcfirst($error);
    }
 
-   array_push($_SESSION['output'], '- submitted doi suffix '.$row['doi_suffix'].' with status of '.curl_getinfo($ch, CURLINFO_HTTP_CODE).$error);
+   array_push($_SESSION['output'], '- submitted DOI '.$publishedDoi.' with status of '.curl_getinfo($ch, CURLINFO_HTTP_CODE).$error);
 
    if($error = curl_error($ch)) {
       array_push($_SESSION['output'], $error);
@@ -104,5 +108,5 @@ curl_close($ch);
 fclose($uploadFp);
 fclose($reportFp);
 remove_old_files('reports'.DIRECTORY_SEPARATOR.'*.csv', CONFIG['maxReportFiles']);
-if(!CONFIG['devMode']) { go_home(); }
+if(!(CONFIG['devMode'] ?? false)) { go_home(); }
 else { echo '<a href=".">Go Back</a>'; }
