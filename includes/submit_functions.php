@@ -156,6 +156,7 @@ function process_uploaded_file() {
 function process_upload_headers($uploadFp) {
    // Headers required to process the upload file.
    $requiredHeaders = [
+      'doi_prefix',
       'doi_suffix',
       'title',
       'year',
