@@ -45,6 +45,9 @@ creator{n}_type - Personal or Organizational (not required, defaults to Personal
 creator{n}_given - creator given name  
 creator{n}_family - creator family name  
 
+### Auto-Generated DOI Suffixes
+If auto-generated DOI suffixes are wanted - leave the doi_suffix field blank (do include the header), add a header called doi_prefix, and add the DOI prefix to the record.
+
 ### Errors
 If an error occurs a verbose message will be logged on the page output and in the generated report. For more information on error codes please see DataCite's [API error code page](https://support.datacite.org/docs/api-error-codes).
 
