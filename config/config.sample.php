@@ -2,7 +2,7 @@
 /**
  * Configuration.
  *
- * @var array  [url, doiPrefix, username, password, maxSubmittedFiles, maxReportedFiles,
+ * @var array  [url, username, password, maxSubmittedFiles, maxReportedFiles,
  *              maxUploadSize, orcidTokenUrl, orcidApiUrl, orcidClientId, orcidSecret]
  */
 const CONFIG = [
