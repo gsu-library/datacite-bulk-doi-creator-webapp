@@ -302,7 +302,7 @@ function get_orcid_token() {
       return null;
    }
 
-   if(CONFIG['devMode']) {
+   if(CONFIG['devMode'] ?? false) {
       curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
    }
 
@@ -346,7 +346,7 @@ function get_orcid_name($orcid, $token) {
    $creator = [];
    $ch = curl_init();
 
-   if(CONFIG['devMode']) {
+   if(CONFIG['devMode'] ?? false) {
       curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
    }
 

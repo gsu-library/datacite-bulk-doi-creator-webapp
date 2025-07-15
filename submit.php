@@ -9,7 +9,7 @@ $_SESSION['output'] = [];
 
 
 check_capabilities();
-if(!CONFIG['devMode']) { validate_csrf_token(); }
+if(!(CONFIG['devMode']) ?? false) { validate_csrf_token(); }
 $uploadFullPath = process_uploaded_file();
 
 // Open the uploaded file.
@@ -32,7 +32,7 @@ fputcsv($reportFp, ['doi_suffix', 'doi_url', 'status', 'error']);
 // Setup cURL.
 $ch = curl_init();
 
-if(CONFIG['devMode']) {
+if(CONFIG['devMode'] ?? false) {
    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 }
 
@@ -113,5 +113,5 @@ curl_close($ch);
 fclose($uploadFp);
 fclose($reportFp);
 remove_old_files('reports'.DIRECTORY_SEPARATOR.'*.csv', CONFIG['maxReportFiles']);
-if(!CONFIG['devMode']) { go_home(); }
+if(!(CONFIG['devMode'] ?? false)) { go_home(); }
 else { echo '<a href=".">Go Back</a>'; }
