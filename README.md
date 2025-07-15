@@ -32,7 +32,7 @@ Currently this application uses basic authentication provided by Apache (see [Ap
 The 'Download CSV Template' menu item (template.csv) provides an example of valid headers this WebApp accepts (also see the fields below). Only one set of creator fields are required per record. Once a filled out CSV file is uploaded and submitted it will be processed. During proccessing, a copy of the uploaded file will be saved in the uploads folder and a report will be created in the reports folder.
 
 ### CSV Fields
-doi_prefix - DOI prefix
+doi_prefix - DOI prefix  
 doi_suffix - DOI suffix  
 title - title of publication  
 year - publication year  
