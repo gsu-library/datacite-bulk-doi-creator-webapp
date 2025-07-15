@@ -14,7 +14,7 @@ For more information about DOIs please see DataCite's [support page](https://sup
 Put the repository files in a folder that is within your web server's webroot.
 
 ### General Configuration
-Rename config/config.sample.php to config/config.php and fill in your DOI prefix, username (repository ID), and password. If wanting to test the script out with the test DataCite API replace the URL with the test API URL (https://api.test.datacite.org/dois) and credentials. There are other configuration options that can be adjusted if wanted.
+Rename config/config.sample.php to config/config.php and fill in your username (repository ID) and password. If wanting to test the script out with the test DataCite API replace the URL with the test API URL (https://api.test.datacite.org/dois) and credentials. There are other configuration options that can be adjusted if wanted.
 
 **It is important that the config folder and its contents are not readable from a web browser. If not using Apache, the config/.htaccess file should be replaced with something denying web access to the contents of the folder.**
 
@@ -32,6 +32,7 @@ Currently this application uses basic authentication provided by Apache (see [Ap
 The 'Download CSV Template' menu item (template.csv) provides an example of valid headers this WebApp accepts (also see the fields below). Only one set of creator fields are required per record. Once a filled out CSV file is uploaded and submitted it will be processed. During proccessing, a copy of the uploaded file will be saved in the uploads folder and a report will be created in the reports folder.
 
 ### CSV Fields
+doi_prefix - DOI prefix
 doi_suffix - DOI suffix  
 title - title of publication  
 year - publication year  
@@ -45,8 +46,8 @@ creator{n}_type - Personal or Organizational (not required, defaults to Personal
 creator{n}_given - creator given name  
 creator{n}_family - creator family name  
 
-### Auto-Generated DOI Suffixes
-If auto-generated DOI suffixes are wanted - leave the doi_suffix field blank (do include the header), add a header called doi_prefix, and add the DOI prefix to the record.
+### Auto-Generating DOI Suffixes
+If auto-generated DOI suffixes are wanted leave the doi_suffix field blank.
 
 ### Errors
 If an error occurs a verbose message will be logged on the page output and in the generated report. For more information on error codes please see DataCite's [API error code page](https://support.datacite.org/docs/api-error-codes).
