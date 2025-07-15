@@ -52,9 +52,6 @@ set_csrf_token();
                   }
                ?>
                <li class="list-group-item">
-                  DOI Prefix: <?= CONFIG['doiPrefix']; ?>
-               </li>
-               <li class="list-group-item">
                   API URL: <?= CONFIG['url']; ?>
                </li>
             </ul>
