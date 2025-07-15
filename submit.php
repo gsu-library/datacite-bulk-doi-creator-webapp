@@ -60,7 +60,6 @@ while(($row = fgetcsv($uploadFp)) !== false) {
          'type' => 'dois',
          'attributes' => [
             'event' => 'publish',
-            'doi' => $doi,
             'creators' => $creators,
             'titles' => [
                'title' => $row['title']
@@ -82,12 +81,22 @@ while(($row = fgetcsv($uploadFp)) !== false) {
    ];
 
 
+   if(!empty($row['doi_suffix'])) {
+      $submission['data']['attributes']['doi'] = $doi;
+   }
+
+   if($row['doi_prefix'] ?? false) {
+      $submission['data']['attributes']['prefix'] = $row['doi_prefix'];
+   }
+
+
    // Submit data.
    $data = json_encode($submission, JSON_INVALID_UTF8_IGNORE);
    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
    $result = json_decode(curl_exec($ch), true);
    $error = $result['errors'][0]['title'] ?? '';
-   fputcsv($reportFp, [$row['doi_suffix'], 'https://doi.org/'.$doi, curl_getinfo($ch, CURLINFO_HTTP_CODE), $error]);
+   $publishedDoi = $result['data']['attributes']['doi'] ?? $doi;
+   fputcsv($reportFp, [$row['doi_suffix'], 'https://doi.org/'.$publishedDoi, curl_getinfo($ch, CURLINFO_HTTP_CODE), $error]);
 
    if($error) {
       $error = ', '.lcfirst($error);
