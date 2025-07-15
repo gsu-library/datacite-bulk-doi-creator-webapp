@@ -3,7 +3,7 @@ Code Repository: https://github.com/gsu-library/datacite-bulk-doi-creator-webapp
 Author: Matt Brooks <mbrooks34@gsu.edu>  
 Date Created: 2022-06-29  
 License: [GPL3](LICENSE)  
-Version: 1.3.1
+Version: 1.4.0
 
 ## Description
 A PHP WebApp that bulk creates DataCite DOIs from a provided CSV file. DOIs are created in the findable state. If you are looking for the python version of this WebApp see [DataCite Bulk DOI Creator](https://github.com/gsu-library/datacite-bulk-doi-creator).
