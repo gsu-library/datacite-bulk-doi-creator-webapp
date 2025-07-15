@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2025-07-15
+- Add ability to generate random DOI suffixes.
+- Fix isset errors with devMode.
+- Fix usort bool return deprecation.
+
 ## [1.3.1] - 2023-02-20
 - Add name identifiers metadata to submission when using ORCID.
 
