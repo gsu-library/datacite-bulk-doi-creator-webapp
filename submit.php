@@ -51,7 +51,7 @@ curl_setopt_array($ch, [
 // Process the rest of the upload.
 while(($row = fgetcsv($uploadFp)) !== false) {
    $row = array_combine($headers, $row);
-   $doi = CONFIG['doiPrefix'].'/'.$row['doi_suffix'];
+   $doi = $row['doi_prefix'].'/'.$row['doi_suffix'];
    $creators = get_creators($creatorHeaders, $row);
 
    $submission = [
@@ -59,6 +59,7 @@ while(($row = fgetcsv($uploadFp)) !== false) {
          'id' => $doi,
          'type' => 'dois',
          'attributes' => [
+            'prefix' => $row['doi_prefix'],
             'event' => 'publish',
             'creators' => $creators,
             'titles' => [
@@ -80,15 +81,9 @@ while(($row = fgetcsv($uploadFp)) !== false) {
       ]
    ];
 
-
    if(!empty($row['doi_suffix'])) {
       $submission['data']['attributes']['doi'] = $doi;
    }
-
-   if($row['doi_prefix'] ?? false) {
-      $submission['data']['attributes']['prefix'] = $row['doi_prefix'];
-   }
-
 
    // Submit data.
    $data = json_encode($submission, JSON_INVALID_UTF8_IGNORE);
@@ -102,7 +97,7 @@ while(($row = fgetcsv($uploadFp)) !== false) {
       $error = ', '.lcfirst($error);
    }
 
-   array_push($_SESSION['output'], '- submitted doi '.$publishedDoi.' with status of '.curl_getinfo($ch, CURLINFO_HTTP_CODE).$error);
+   array_push($_SESSION['output'], '- submitted DOI '.$publishedDoi.' with status of '.curl_getinfo($ch, CURLINFO_HTTP_CODE).$error);
 
    if($error = curl_error($ch)) {
       array_push($_SESSION['output'], $error);
