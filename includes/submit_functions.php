@@ -81,7 +81,7 @@ function remove_old_files($filePattern, $maxFileCount) {
    if($extraFiles > 0) {
       // Sort by last modified ascending.
       usort($files, function($x, $y) {
-         return filemtime($x) > filemtime($y);
+         return filemtime($x) <=> filemtime($y);
       });
 
       for($i = 0; $i < $extraFiles; $i++) {
