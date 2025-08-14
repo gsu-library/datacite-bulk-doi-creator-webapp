@@ -27,7 +27,7 @@ $creatorHeaders = preg_grep('/^creator\d+$/', $headers);
 $reportFp = open_report_file($uploadFullPath);
 
 // Add headers to upload report file.
-fputcsv($reportFp, ['doi_suffix', 'doi_url', 'status', 'error']);
+fputcsv($reportFp, ['doi', 'doi_url', 'status', 'error']);
 
 // Setup cURL.
 $ch = curl_init();
@@ -91,7 +91,7 @@ while(($row = fgetcsv($uploadFp)) !== false) {
    $result = json_decode(curl_exec($ch), true);
    $error = $result['errors'][0]['title'] ?? '';
    $publishedDoi = $result['data']['attributes']['doi'] ?? $doi;
-   fputcsv($reportFp, [$row['doi_suffix'], 'https://doi.org/'.$publishedDoi, curl_getinfo($ch, CURLINFO_HTTP_CODE), $error]);
+   fputcsv($reportFp, [$publishedDoi, 'https://doi.org/'.$publishedDoi, curl_getinfo($ch, CURLINFO_HTTP_CODE), $error]);
 
    if($error) {
       $error = ', '.lcfirst($error);
