@@ -338,7 +338,7 @@ function get_orcid_token() {
 /**
  * Returns a creator array from the given ORCID ID and access token.
  *
- * @param   string   $orcid The ORICD ID to lookup.
+ * @param   string   $orcid The ORCID ID to lookup.
  * @param   string   $token The public read access token to use.
  * @return  array    A creator array.
  */

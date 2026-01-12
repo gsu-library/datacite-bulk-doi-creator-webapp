@@ -40,7 +40,7 @@ type - resource type
 description - abstract description  
 publisher - publisher  
 source_url - URL reference to resource  
-oricd - ORCID ID (not required, replaces creator fields when configured and present)  
+orcid - ORCID ID (not required, replaces creator fields when configured and present)  
 creator{n} - full creator name (header example: creator1, creator2, etc.)  
 creator{n}_type - Personal or Organizational (not required, defaults to Personal)  
 creator{n}_given - creator given name  
