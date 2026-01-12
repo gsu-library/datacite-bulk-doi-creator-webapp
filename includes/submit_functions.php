@@ -229,52 +229,51 @@ function get_creators($creatorHeaders, $row) {
    $creators = [];
    $tokenFile = 'config/orcid_token.json';
 
-   // If ORCID header exists process that instead of creator{n}.
-   if(!empty($row['orcid'])) {
-      if(!file_exists($tokenFile)) {
-         // Can we write to the config folder?
-         if(!is_writable('config')) {
-            array_push($_SESSION['output'], 'The config directory is not writable.');
-            return $creators;
-         }
+   // Process each creator.
+   foreach($creatorHeaders as $x) {
+      // If ceator{n}_orcid exists process that instead of creator{n}_*.
+      if(!empty($row[$x.'_orcid'])) {
+         if(!file_exists($tokenFile)) {
+            // Can we write to the config folder?
+            if(!is_writable('config')) {
+               array_push($_SESSION['output'], 'The config directory is not writable.');
+               return $creators;
+            }
 
-         if(!($tokenInfo = get_orcid_token())) {
-            return $creators;
-         }
-      }
-      else {
-         $tokenInfo = json_decode(file_get_contents($tokenFile), true);
-
-         // If token is expired get a new one.
-         if($tokenInfo['expires_on'] <= time()) {
             if(!($tokenInfo = get_orcid_token())) {
                return $creators;
             }
          }
-      }
+         else {
+            $tokenInfo = json_decode(file_get_contents($tokenFile), true);
 
-      preg_match('/(\d{4}-){3}\d{3}(\d|X)/', $row['orcid'], $matches);
-      $creators = get_orcid_name($matches[0], $tokenInfo['access_token']);
-   }
-   else {
-      // Process multiple creators.
-      foreach($creatorHeaders as $x) {
-         if(!empty($row[$x])) {
-            // Make nameType optional.
-            if(empty($row[$x.'_type']) || $row[$x.'_type'] !== 'Organizational') {
-               $nameType = 'Personal';
+            // If token is expired get a new one.
+            if($tokenInfo['expires_on'] <= time()) {
+               if(!($tokenInfo = get_orcid_token())) {
+                  return $creators;
+               }
             }
-            else {
-               $nameType = 'Organizational';
-            }
-
-            array_push($creators, [
-               'name' => $row[$x],
-               'nameType' => $nameType,
-               'givenName' => $row[$x.'_given'],
-               'familyName' => $row[$x.'_family']
-            ]);
          }
+
+         preg_match('/(\d{4}-){3}\d{3}(\d|X)/', $row[$x.'_orcid'], $matches);
+         $orcid_creator = get_orcid_name($matches[0], $tokenInfo['access_token']);
+         array_push($creators, $orcid_creator);
+      }
+      else if(!empty($row[$x])) {
+         // Make nameType optional.
+         if(empty($row[$x.'_type']) || $row[$x.'_type'] !== 'Organizational') {
+            $nameType = 'Personal';
+         }
+         else {
+            $nameType = 'Organizational';
+         }
+
+         array_push($creators, [
+            'name' => $row[$x],
+            'nameType' => $nameType,
+            'givenName' => $row[$x.'_given'],
+            'familyName' => $row[$x.'_family']
+         ]);
       }
    }
 
@@ -338,13 +337,12 @@ function get_orcid_token() {
 /**
  * Returns a creator array from the given ORCID ID and access token.
  *
- * @param   string   $orcid The ORICD ID to lookup.
+ * @param   string   $orcid The ORCID ID to lookup.
  * @param   string   $token The public read access token to use.
- * @return  array    A creator array.
+ * @return  array    A creator.
  */
 function get_orcid_name($orcid, $token) {
    $apiUrl = CONFIG['orcidApiUrl'].'v3.0/'.$orcid.'/personal-details';
-   $creator = [];
    $ch = curl_init();
 
    if(CONFIG['devMode'] ?? false) {
@@ -364,17 +362,17 @@ function get_orcid_name($orcid, $token) {
    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
    if($code === 200) {
-      array_push($creator, [
-         'name' => $result['name']['family-name']['value'].', '.$result['name']['given-names']['value'],
-         'nameType' => 'Personal',
-         'givenName' => $result['name']['given-names']['value'],
-         'familyName' => $result['name']['family-name']['value'],
-         'nameIdentifiers' => [
-            'schemeUri' => 'https://orcid.org',
-            'nameIdentifier' => 'https://orcid.org/'.$orcid,
-            'nameIdentifierScheme' => 'ORCID'
+      $creator = [
+      'name' => $result['name']['family-name']['value'].', '.$result['name']['given-names']['value'],
+      'nameType' => 'Personal',
+      'givenName' => $result['name']['given-names']['value'],
+      'familyName' => $result['name']['family-name']['value'],
+      'nameIdentifiers' => [
+         'schemeUri' => 'https://orcid.org',
+         'nameIdentifier' => 'https://orcid.org/'.$orcid,
+         'nameIdentifierScheme' => 'ORCID'
          ]
-      ]);
+      ];
    }
    else if($code === 404) {
       array_push($_SESSION['output'], 'ORCID ID '.$orcid.' not found.');

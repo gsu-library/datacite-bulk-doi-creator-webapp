@@ -3,7 +3,7 @@ Code Repository: https://github.com/gsu-library/datacite-bulk-doi-creator-webapp
 Author: Matt Brooks <mbrooks34@gsu.edu>  
 Date Created: 2022-06-29  
 License: [GPL3](LICENSE)  
-Version: 1.4.1
+Version: 1.5.0
 
 ## Description
 A PHP WebApp that bulk creates DataCite DOIs from a provided CSV file. DOIs are created in the findable state. If you are looking for the python version of this WebApp see [DataCite Bulk DOI Creator](https://github.com/gsu-library/datacite-bulk-doi-creator).
@@ -40,8 +40,8 @@ type - resource type
 description - abstract description  
 publisher - publisher  
 source_url - URL reference to resource  
-oricd - ORCID ID (not required, replaces creator fields when configured and present)  
 creator{n} - full creator name (header example: creator1, creator2, etc.)  
+creator{n}_orcid - ORCID ID (not required, replaces creator fields when configured and present)  
 creator{n}_type - Personal or Organizational (not required, defaults to Personal)  
 creator{n}_given - creator given name  
 creator{n}_family - creator family name  
